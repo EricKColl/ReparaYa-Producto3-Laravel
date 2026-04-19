@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'ReparaYa Producto 3')</title>
+    <title>@yield('title', 'ReparaYa')</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -19,19 +20,34 @@
         }
 
         header h1 {
-            margin: 0;
-            font-size: 28px;
+            margin: 0 0 10px 0;
         }
 
         nav {
-            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
         }
 
         nav a {
             color: white;
             text-decoration: none;
-            margin-right: 15px;
             font-weight: bold;
+        }
+
+        .user-info {
+            margin-left: auto;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: #dc3545;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            margin-left: 10px;
         }
 
         main {
@@ -52,19 +68,35 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>ReparaYa</h1>
-        <nav>
-            <a href="/">Inicio</a>
-        </nav>
-    </header>
 
-    <main>
-        @yield('content')
-    </main>
+<header>
+    <h1>ReparaYa</h1>
 
-    <footer>
-        Producto 3 · Migración a Laravel
-    </footer>
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="/usuarios">Usuarios</a>
+        <a href="/tecnicos">Técnicos</a>
+        <a href="/especialidades">Especialidades</a>
+        <a href="/incidencias">Incidencias</a>
+
+        @if(session()->has('usuario_id'))
+            <span class="user-info">
+                {{ session('usuario_nombre') }} ({{ session('usuario_rol') }})
+                <a href="/logout" class="logout-btn">Salir</a>
+            </span>
+        @else
+            <a href="/login">Login</a>
+        @endif
+    </nav>
+</header>
+
+<main>
+    @yield('content')
+</main>
+
+<footer>
+    Producto 3 · Migración a Laravel
+</footer>
+
 </body>
 </html>
