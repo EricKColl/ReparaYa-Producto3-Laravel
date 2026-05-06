@@ -11,7 +11,7 @@ class Especialidad extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'nombre'
+        'nombre_especialidad'
     ];
 
     public function tecnicos()
