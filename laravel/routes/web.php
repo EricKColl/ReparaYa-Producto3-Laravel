@@ -33,3 +33,8 @@ Route::get('/especialidades/{id}/edit', [EspecialidadController::class, 'edit'])
 Route::put('/especialidades/{id}', [EspecialidadController::class, 'update'])->name('especialidades.update');
 Route::delete('/especialidades/{id}', [EspecialidadController::class, 'destroy'])->name('especialidades.destroy');
 Route::get('/incidencias', [IncidenciaController::class, 'index'])->name('incidencias.index');
+Route::get('/incidencias/create', [IncidenciaController::class, 'create'])->name('incidencias.create');
+Route::post('/incidencias', [IncidenciaController::class, 'store'])->name('incidencias.store');
+Route::get('/incidencias/{id}/edit', [IncidenciaController::class, 'edit'])->name('incidencias.edit');
+Route::put('/incidencias/{id}', [IncidenciaController::class, 'update'])->name('incidencias.update');
+Route::delete('/incidencias/{id}', [IncidenciaController::class, 'destroy'])->name('incidencias.destroy');
