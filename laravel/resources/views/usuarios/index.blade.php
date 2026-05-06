@@ -1,26 +1,86 @@
-<h1>Listado de Usuarios</h1>
+@extends('layouts.app')
 
-<a href="{{ route('usuarios.create') }}">Nuevo usuario</a>
+@section('title', 'Usuarios')
 
-<br><br>
+@section('content')
+
+<div class="page-header">
+    <h1>Listado de Usuarios</h1>
+
+    <a href="{{ route('usuarios.create') }}" class="btn btn-primary">
+        Nuevo usuario
+    </a>
+</div>
 
 @if ($usuarios->isEmpty())
-    <p>No hay usuarios registrados.</p>
+
+    <p class="alert-empty">No hay usuarios registrados.</p>
+
 @else
-    @foreach ($usuarios as $u)
-        <p>
-            <strong>{{ $u->nombre }}</strong>
-            - {{ $u->email }}
-            - Rol: {{ $u->rol }}
-            - Tel: {{ $u->telefono }}
 
-            <a href="{{ route('usuarios.edit', $u->id) }}">Editar</a>
+<table class="table">
 
-            <form action="{{ route('usuarios.destroy', $u->id) }}" method="POST" style="display:inline;">
-                @csrf
-                @method('DELETE')
-                <button type="submit">Eliminar</button>
-            </form>
-        </p>
-    @endforeach
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Teléfono</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach ($usuarios as $u)
+
+            <tr>
+
+                <td>{{ $u->id }}</td>
+
+                <td>{{ $u->nombre }}</td>
+
+                <td>{{ $u->email }}</td>
+
+                <td>{{ $u->rol }}</td>
+
+                <td>{{ $u->telefono }}</td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <a href="{{ route('usuarios.edit', $u->id) }}"
+                           class="btn btn-warning">
+                            Editar
+                        </a>
+
+                        <form action="{{ route('usuarios.destroy', $u->id) }}"
+                              method="POST">
+
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+                                Eliminar
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        @endforeach
+
+    </tbody>
+
+</table>
+
 @endif
+
+@endsection

@@ -1,42 +1,54 @@
-<h1>Nuevo Usuario</h1>
+@extends('layouts.app')
 
-<form method="POST" action="{{ route('usuarios.store') }}">
+@section('title', 'Nuevo Usuario')
+
+@section('content')
+
+<div class="page-header">
+    <h1>Nuevo Usuario</h1>
+</div>
+
+<form action="{{ route('usuarios.store') }}" method="POST">
+
     @csrf
 
-    <label>Nombre:</label>
-    <input type="text" name="nombre" value="{{ old('nombre') }}">
-    @error('nombre') <p style="color:red;">{{ $message }}</p> @enderror
+    <div class="form-group">
+        <label>Nombre</label>
+        <input type="text" name="nombre" class="form-control" required>
+    </div>
 
-    <br><br>
+    <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" class="form-control" required>
+    </div>
 
-    <label>Email:</label>
-    <input type="email" name="email" value="{{ old('email') }}">
-    @error('email') <p style="color:red;">{{ $message }}</p> @enderror
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" class="form-control" required>
+    </div>
 
-    <br><br>
+    <div class="form-group">
+        <label>Rol</label>
 
-    <label>Contraseña:</label>
-    <input type="password" name="password">
-    @error('password') <p style="color:red;">{{ $message }}</p> @enderror
+        <select name="rol" class="form-control">
+            <option value="particular">Particular</option>
+            <option value="admin">Admin</option>
+        </select>
+    </div>
 
-    <br><br>
+    <div class="form-group">
+        <label>Teléfono</label>
+        <input type="text" name="telefono" class="form-control">
+    </div>
 
-    <label>Rol:</label>
-    <select name="rol">
-        <option value="particular">Particular</option>
-        <option value="admin">Admin</option>
-    </select>
+    <button type="submit" class="btn btn-primary">
+        Crear usuario
+    </button>
 
-    <br><br>
+    <a href="{{ route('usuarios.index') }}" class="btn btn-warning">
+        Volver
+    </a>
 
-    <label>Teléfono:</label>
-    <input type="text" name="telefono" value="{{ old('telefono') }}">
-
-    <br><br>
-
-    <button type="submit">Guardar</button>
 </form>
 
-<br>
-
-<a href="{{ route('usuarios.index') }}">Volver al listado</a>
+@endsection

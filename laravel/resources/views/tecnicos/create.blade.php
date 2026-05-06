@@ -1,46 +1,75 @@
-<h1>Nuevo Técnico</h1>
+@extends('layouts.app')
 
-<form method="POST" action="{{ route('tecnicos.store') }}">
+@section('title', 'Nuevo Técnico')
+
+@section('content')
+
+<div class="page-header">
+    <h1>Nuevo Técnico</h1>
+</div>
+
+<form action="{{ route('tecnicos.store') }}" method="POST">
+
     @csrf
 
-    <label>Usuario:</label>
-    <select name="usuario_id">
-        @foreach ($usuarios as $usuario)
-            <option value="{{ $usuario->id }}">{{ $usuario->nombre }} - {{ $usuario->email }}</option>
-        @endforeach
-    </select>
+    <div class="form-group">
+        <label>Usuario</label>
 
-    <br><br>
+        <select name="usuario_id" class="form-control">
 
-    <label>Nombre completo:</label>
-    <input type="text" name="nombre_completo" value="{{ old('nombre_completo') }}">
+            @foreach ($usuarios as $u)
 
-    @error('nombre_completo')
-        <p style="color:red;">{{ $message }}</p>
-    @enderror
+                <option value="{{ $u->id }}">
+                    {{ $u->nombre }} - {{ $u->email }}
+                </option>
 
-    <br><br>
+            @endforeach
 
-    <label>Especialidad:</label>
-    <select name="especialidad_id">
-        @foreach ($especialidades as $especialidad)
-            <option value="{{ $especialidad->id }}">{{ $especialidad->nombre_especialidad }}</option>
-        @endforeach
-    </select>
+        </select>
+    </div>
 
-    <br><br>
+    <div class="form-group">
+        <label>Nombre completo</label>
 
-    <label>Disponible:</label>
-    <select name="disponible">
-        <option value="1">Sí</option>
-        <option value="0">No</option>
-    </select>
+        <input type="text"
+               name="nombre_completo"
+               class="form-control"
+               required>
+    </div>
 
-    <br><br>
+    <div class="form-group">
+        <label>Especialidad</label>
 
-    <button type="submit">Guardar</button>
+        <select name="especialidad_id" class="form-control">
+
+            @foreach ($especialidades as $e)
+
+                <option value="{{ $e->id }}">
+                    {{ $e->nombre_especialidad }}
+                </option>
+
+            @endforeach
+
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Disponible</label>
+
+        <select name="disponible" class="form-control">
+            <option value="1">Sí</option>
+            <option value="0">No</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Crear técnico
+    </button>
+
+    <a href="{{ route('tecnicos.index') }}" class="btn btn-warning">
+        Volver
+    </a>
+
 </form>
 
-<br>
-
-<a href="{{ route('tecnicos.index') }}">Volver al listado</a>
+@endsection

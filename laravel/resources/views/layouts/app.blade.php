@@ -65,6 +65,90 @@
             color: #666;
             font-size: 14px;
         }
+
+        .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #222;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .table th,
+        .table td {
+            border-bottom: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .table th {
+            background: #f1f3f5;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        .alert-empty {
+            background: #fff3cd;
+            padding: 12px;
+            border-radius: 6px;
+            color: #664d03;
+        }
     </style>
 </head>
 <body>

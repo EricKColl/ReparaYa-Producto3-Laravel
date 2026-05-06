@@ -1,25 +1,36 @@
-<h1>Nueva Especialidad</h1>
+@extends('layouts.app')
 
-<form method="POST" action="{{ route('especialidades.store') }}">
-    @csrf
+@section('title', 'Nueva Especialidad')
 
-    <label for="nombre_especialidad">Nombre de la especialidad:</label>
-    <input 
-        type="text" 
-        id="nombre_especialidad" 
-        name="nombre_especialidad" 
-        value="{{ old('nombre_especialidad') }}"
-    >
+@section('content')
 
-    @error('nombre_especialidad')
-        <p style="color: red;">{{ $message }}</p>
-    @enderror
+    <div class="page-header">
+        <h1>Nueva Especialidad</h1>
+    </div>
 
-    <br><br>
+    <form action="{{ route('especialidades.store') }}" method="POST">
 
-    <button type="submit">Guardar</button>
-</form>
+        @csrf
 
-<br>
+        <div class="form-group">
+            <label>Nombre de la especialidad</label>
 
-<a href="{{ route('especialidades.index') }}">Volver al listado</a>
+            <input
+                type="text"
+                name="nombre_especialidad"
+                class="form-control"
+                required
+            >
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Guardar especialidad
+        </button>
+
+        <a href="{{ route('especialidades.index') }}" class="btn btn-warning">
+            Volver
+        </a>
+
+    </form>
+
+@endsection

@@ -19,11 +19,15 @@ class IncidenciaController extends Controller
 
     public function create()
     {
-        $clientes = Usuario::where('rol', 'particular')->get();
+        $usuarios = Usuario::all();
         $tecnicos = Tecnico::all();
         $especialidades = Especialidad::all();
 
-        return view('incidencias.create', compact('clientes', 'tecnicos', 'especialidades'));
+        return view('incidencias.create', compact(
+            'usuarios',
+            'tecnicos',
+            'especialidades'
+        ));
     }
 
     public function store(Request $request)

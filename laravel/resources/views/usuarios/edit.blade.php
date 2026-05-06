@@ -1,44 +1,70 @@
-<h1>Editar Usuario</h1>
+@extends('layouts.app')
 
-<form method="POST" action="{{ route('usuarios.update', $usuario->id) }}">
+@section('title', 'Editar Usuario')
+
+@section('content')
+
+<div class="page-header">
+    <h1>Editar Usuario</h1>
+</div>
+
+<form action="{{ route('usuarios.update', $usuario->id) }}" method="POST">
+
     @csrf
     @method('PUT')
 
-    <label>Nombre:</label>
-    <input type="text" name="nombre" value="{{ old('nombre', $usuario->nombre) }}">
-    @error('nombre') <p style="color:red;">{{ $message }}</p> @enderror
+    <div class="form-group">
+        <label>Nombre</label>
+        <input type="text"
+               name="nombre"
+               class="form-control"
+               value="{{ $usuario->nombre }}"
+               required>
+    </div>
 
-    <br><br>
+    <div class="form-group">
+        <label>Email</label>
+        <input type="email"
+               name="email"
+               class="form-control"
+               value="{{ $usuario->email }}"
+               required>
+    </div>
 
-    <label>Email:</label>
-    <input type="email" name="email" value="{{ old('email', $usuario->email) }}">
-    @error('email') <p style="color:red;">{{ $message }}</p> @enderror
+    <div class="form-group">
+        <label>Rol</label>
 
-    <br><br>
+        <select name="rol" class="form-control">
 
-    <label>Nueva contraseña:</label>
-    <input type="password" name="password">
-    <p>Déjala vacía si no quieres cambiarla.</p>
-    @error('password') <p style="color:red;">{{ $message }}</p> @enderror
+            <option value="particular"
+                {{ $usuario->rol == 'particular' ? 'selected' : '' }}>
+                Particular
+            </option>
 
-    <br>
+            <option value="admin"
+                {{ $usuario->rol == 'admin' ? 'selected' : '' }}>
+                Admin
+            </option>
 
-    <label>Rol:</label>
-    <select name="rol">
-        <option value="particular" {{ $usuario->rol == 'particular' ? 'selected' : '' }}>Particular</option>
-        <option value="admin" {{ $usuario->rol == 'admin' ? 'selected' : '' }}>Admin</option>
-    </select>
+        </select>
+    </div>
 
-    <br><br>
+    <div class="form-group">
+        <label>Teléfono</label>
+        <input type="text"
+               name="telefono"
+               class="form-control"
+               value="{{ $usuario->telefono }}">
+    </div>
 
-    <label>Teléfono:</label>
-    <input type="text" name="telefono" value="{{ old('telefono', $usuario->telefono) }}">
+    <button type="submit" class="btn btn-primary">
+        Actualizar usuario
+    </button>
 
-    <br><br>
+    <a href="{{ route('usuarios.index') }}" class="btn btn-warning">
+        Volver
+    </a>
 
-    <button type="submit">Actualizar</button>
 </form>
 
-<br>
-
-<a href="{{ route('usuarios.index') }}">Volver al listado</a>
+@endsection

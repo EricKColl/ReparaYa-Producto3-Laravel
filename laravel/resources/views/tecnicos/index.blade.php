@@ -1,29 +1,92 @@
-<h1>Listado de Técnicos</h1>
+@extends('layouts.app')
 
-<a href="{{ route('tecnicos.create') }}">Nuevo técnico</a>
+@section('title', 'Técnicos')
 
-<br><br>
+@section('content')
+
+<div class="page-header">
+    <h1>Listado de Técnicos</h1>
+
+    <a href="{{ route('tecnicos.create') }}" class="btn btn-primary">
+        Nuevo técnico
+    </a>
+</div>
 
 @if ($tecnicos->isEmpty())
-    <p>No hay técnicos registrados.</p>
+
+    <p class="alert-empty">No hay técnicos registrados.</p>
+
 @else
-    @foreach ($tecnicos as $t)
-        <p>
-            <strong>{{ $t->nombre_completo }}</strong>
 
-            - Usuario asociado: {{ $t->usuario->nombre ?? 'Sin usuario' }}
+<table class="table">
 
-            - Especialidad: {{ $t->especialidad->nombre_especialidad ?? 'Sin especialidad' }}
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Usuario asociado</th>
+            <th>Especialidad</th>
+            <th>Disponible</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
 
-            - Disponible: {{ $t->disponible ? 'Sí' : 'No' }}
+    <tbody>
 
-            <a href="{{ route('tecnicos.edit', $t->id) }}">Editar</a>
+        @foreach ($tecnicos as $t)
 
-            <form action="{{ route('tecnicos.destroy', $t->id) }}" method="POST" style="display:inline;">
-                @csrf
-                @method('DELETE')
-                <button type="submit">Eliminar</button>
-            </form>
-        </p>
-    @endforeach
+            <tr>
+
+                <td>{{ $t->id }}</td>
+
+                <td>{{ $t->nombre_completo }}</td>
+
+                <td>
+                    {{ $t->usuario->nombre ?? 'Sin usuario' }}
+                </td>
+
+                <td>
+                    {{ $t->especialidad->nombre_especialidad ?? 'Sin especialidad' }}
+                </td>
+
+                <td>
+                    {{ $t->disponible ? 'Sí' : 'No' }}
+                </td>
+
+                <td>
+
+                    <div class="actions">
+
+                        <a href="{{ route('tecnicos.edit', $t->id) }}"
+                           class="btn btn-warning">
+                            Editar
+                        </a>
+
+                        <form action="{{ route('tecnicos.destroy', $t->id) }}"
+                              method="POST">
+
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submit"
+                                    class="btn btn-danger">
+                                Eliminar
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </td>
+
+            </tr>
+
+        @endforeach
+
+    </tbody>
+
+</table>
+
 @endif
+
+@endsection

@@ -1,23 +1,44 @@
-<h1>Listado de Especialidades</h1>
+@extends('layouts.app')
 
-<a href="{{ route('especialidades.create') }}">Nueva especialidad</a>
+@section('title', 'Especialidades')
 
-<br><br>
+@section('content')
+    <div class="page-header">
+        <h1>Listado de Especialidades</h1>
+        <a href="{{ route('especialidades.create') }}" class="btn btn-primary">Nueva especialidad</a>
+    </div>
 
-@if ($especialidades->isEmpty())
-    <p>No hay especialidades registradas.</p>
-@else
-    @foreach ($especialidades as $e)
-    <p>
-        {{ $e->nombre_especialidad }}
+    @if ($especialidades->isEmpty())
+        <p class="alert-empty">No hay especialidades registradas.</p>
+    @else
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
 
-        <a href="{{ route('especialidades.edit', $e->id) }}">Editar</a>
+            <tbody>
+                @foreach ($especialidades as $e)
+                    <tr>
+                        <td>{{ $e->id }}</td>
+                        <td>{{ $e->nombre_especialidad }}</td>
+                        <td>
+                            <div class="actions">
+                                <a href="{{ route('especialidades.edit', $e->id) }}" class="btn btn-warning">Editar</a>
 
-        <form action="{{ route('especialidades.destroy', $e->id) }}" method="POST" style="display:inline;">
-            @csrf
-            @method('DELETE')
-            <button type="submit">Eliminar</button>
-        </form>
-    </p>
-@endforeach
-@endif
+                                <form action="{{ route('especialidades.destroy', $e->id) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    @endif
+@endsection
