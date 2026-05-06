@@ -15,6 +15,11 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+Route::get('/usuarios/create', [UsuarioController::class, 'create'])->name('usuarios.create');
+Route::post('/usuarios', [UsuarioController::class, 'store'])->name('usuarios.store');
+Route::get('/usuarios/{id}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
+Route::put('/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
+Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
 Route::get('/tecnicos', [TecnicoController::class, 'index'])->name('tecnicos.index');
 Route::get('/tecnicos/create', [TecnicoController::class, 'create'])->name('tecnicos.create');
 Route::post('/tecnicos', [TecnicoController::class, 'store'])->name('tecnicos.store');
