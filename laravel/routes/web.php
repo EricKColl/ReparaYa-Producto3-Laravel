@@ -16,6 +16,11 @@ Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
 Route::get('/tecnicos', [TecnicoController::class, 'index'])->name('tecnicos.index');
+Route::get('/tecnicos/create', [TecnicoController::class, 'create'])->name('tecnicos.create');
+Route::post('/tecnicos', [TecnicoController::class, 'store'])->name('tecnicos.store');
+Route::get('/tecnicos/{id}/edit', [TecnicoController::class, 'edit'])->name('tecnicos.edit');
+Route::put('/tecnicos/{id}', [TecnicoController::class, 'update'])->name('tecnicos.update');
+Route::delete('/tecnicos/{id}', [TecnicoController::class, 'destroy'])->name('tecnicos.destroy');
 Route::get('/especialidades', [EspecialidadController::class, 'index'])->name('especialidades.index');
 Route::get('/especialidades/create', [EspecialidadController::class, 'create'])->name('especialidades.create');
 Route::post('/especialidades', [EspecialidadController::class, 'store'])->name('especialidades.store');
