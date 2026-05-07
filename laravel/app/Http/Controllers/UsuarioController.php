@@ -3,14 +3,17 @@
 namespace App\Http\Controllers;
 
 use App\Models\Usuario;
+use App\Models\Tecnico;
+use App\Models\Incidencia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\QueryException;
 
 class UsuarioController extends Controller
 {
     public function index()
     {
-        $usuarios = Usuario::all();
+        $usuarios = Usuario::orderBy('id')->get();
 
         return view('usuarios.index', compact('usuarios'));
     }
@@ -26,7 +29,7 @@ class UsuarioController extends Controller
             'nombre' => 'required|string|max:100',
             'email' => 'required|email|max:100|unique:usuarios,email',
             'password' => 'required|string|min:6',
-            'rol' => 'required|string',
+            'rol' => 'required|in:admin,tecnico,particular',
             'telefono' => 'nullable|string|max:20'
         ]);
 
@@ -39,7 +42,9 @@ class UsuarioController extends Controller
             'created_at' => now()
         ]);
 
-        return redirect()->route('usuarios.index');
+        return redirect()
+            ->route('usuarios.index')
+            ->with('success', 'Usuario creado correctamente.');
     }
 
     public function edit($id)
@@ -57,7 +62,7 @@ class UsuarioController extends Controller
             'nombre' => 'required|string|max:100',
             'email' => 'required|email|max:100|unique:usuarios,email,' . $usuario->id,
             'password' => 'nullable|string|min:6',
-            'rol' => 'required|string',
+            'rol' => 'required|in:admin,tecnico,particular',
             'telefono' => 'nullable|string|max:20'
         ]);
 
@@ -74,15 +79,46 @@ class UsuarioController extends Controller
 
         $usuario->update($datos);
 
-        return redirect()->route('usuarios.index');
+        return redirect()
+            ->route('usuarios.index')
+            ->with('success', 'Usuario actualizado correctamente.');
     }
 
     public function destroy($id)
     {
         $usuario = Usuario::findOrFail($id);
 
-        $usuario->delete();
+        if ((int) session('usuario_id') === (int) $usuario->id) {
+            return redirect()
+                ->route('usuarios.index')
+                ->with('error', 'No puedes eliminar el usuario con el que tienes la sesión iniciada.');
+        }
 
-        return redirect()->route('usuarios.index');
+        $incidenciasComoCliente = Incidencia::where('cliente_id', $usuario->id)->count();
+        $fichaTecnica = Tecnico::where('usuario_id', $usuario->id)->first();
+
+        if ($incidenciasComoCliente > 0) {
+            return redirect()
+                ->route('usuarios.index')
+                ->with('error', 'No se puede eliminar este usuario porque tiene incidencias asociadas como cliente. Para mantener la trazabilidad del sistema, primero habría que reasignar o eliminar esas incidencias.');
+        }
+
+        if ($fichaTecnica) {
+            return redirect()
+                ->route('usuarios.index')
+                ->with('error', 'No se puede eliminar este usuario porque está vinculado a una ficha de técnico. Primero elimina o reasigna la ficha técnica correspondiente.');
+        }
+
+        try {
+            $usuario->delete();
+
+            return redirect()
+                ->route('usuarios.index')
+                ->with('success', 'Usuario eliminado correctamente.');
+        } catch (QueryException $e) {
+            return redirect()
+                ->route('usuarios.index')
+                ->with('error', 'No se puede eliminar este usuario porque está relacionado con otros datos del sistema.');
+        }
     }
 }
