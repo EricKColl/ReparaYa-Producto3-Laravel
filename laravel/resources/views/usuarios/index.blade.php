@@ -43,7 +43,15 @@
 
                 <td>{{ $u->email }}</td>
 
-                <td>{{ $u->rol }}</td>
+                <td>
+                    @if ($u->rol === 'tecnico')
+                        Técnico
+                    @elseif ($u->rol === 'admin')
+                        Admin
+                    @else
+                        Particular
+                    @endif
+                </td>
 
                 <td>{{ $u->telefono }}</td>
 
@@ -57,7 +65,8 @@
                         </a>
 
                         <form action="{{ route('usuarios.destroy', $u->id) }}"
-                              method="POST">
+                              method="POST"
+                              onsubmit="return confirm('¿Seguro que quieres eliminar este usuario?');">
 
                             @csrf
                             @method('DELETE')
