@@ -12,8 +12,29 @@ use Illuminate\Database\QueryException;
 
 class TecnicoController extends Controller
 {
+    private function bloquearSiNoEsAdmin()
+    {
+        if (!session()->has('usuario_id')) {
+            return redirect()
+                ->route('login')
+                ->with('error', 'Debes iniciar sesión para acceder a esta sección.');
+        }
+
+        if (session('usuario_rol') !== 'admin') {
+            return redirect()
+                ->route('home')
+                ->with('error', 'Solo el administrador puede acceder a la gestión de técnicos.');
+        }
+
+        return null;
+    }
+
     public function index()
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         $tecnicos = Tecnico::with(['usuario', 'especialidad'])
             ->orderBy('id')
             ->get();
@@ -23,6 +44,10 @@ class TecnicoController extends Controller
 
     public function create()
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         $usuarios = Usuario::where('rol', 'tecnico')
             ->whereDoesntHave('tecnico')
             ->orderBy('nombre')
@@ -35,6 +60,10 @@ class TecnicoController extends Controller
 
     public function store(Request $request)
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         $request->validate([
             'usuario_id' => [
                 'required',
@@ -63,6 +92,10 @@ class TecnicoController extends Controller
 
     public function edit($id)
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         $tecnico = Tecnico::findOrFail($id);
 
         $usuarios = Usuario::where('rol', 'tecnico')
@@ -80,6 +113,10 @@ class TecnicoController extends Controller
 
     public function update(Request $request, $id)
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         $tecnico = Tecnico::findOrFail($id);
 
         $request->validate([
@@ -110,6 +147,10 @@ class TecnicoController extends Controller
 
     public function destroy($id)
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         $tecnico = Tecnico::findOrFail($id);
 
         $incidenciasAsignadas = Incidencia::where('tecnico_id', $tecnico->id)->count();

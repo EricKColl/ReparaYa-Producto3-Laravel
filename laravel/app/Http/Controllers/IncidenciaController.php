@@ -13,18 +13,52 @@ class IncidenciaController extends Controller
 {
     public function index()
     {
-        $incidencias = Incidencia::with(['cliente', 'tecnico', 'especialidad'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        if (!session()->has('usuario_id')) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión para acceder a las incidencias.');
+        }
+
+        $query = Incidencia::with(['cliente', 'tecnico', 'especialidad'])
+            ->orderBy('created_at', 'desc');
+
+        if (session('usuario_rol') === 'particular') {
+            $query->where('cliente_id', session('usuario_id'));
+        }
+
+        if (session('usuario_rol') === 'tecnico') {
+            $tecnico = Tecnico::where('usuario_id', session('usuario_id'))->first();
+
+            if (!$tecnico) {
+                $query->whereRaw('1 = 0');
+            } else {
+                $query->where('tecnico_id', $tecnico->id);
+            }
+        }
+
+        $incidencias = $query->get();
 
         return view('incidencias.index', compact('incidencias'));
     }
 
     public function create()
     {
-        $clientes = Usuario::where('rol', 'particular')
-            ->orderBy('nombre')
-            ->get();
+        if (!session()->has('usuario_id')) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión para crear una incidencia.');
+        }
+
+        if (session('usuario_rol') === 'tecnico') {
+            return redirect()->route('incidencias.index')
+                ->with('error', 'Los técnicos solo pueden consultar las incidencias asignadas.');
+        }
+
+        if (session('usuario_rol') === 'admin') {
+            $clientes = Usuario::where('rol', 'particular')
+                ->orderBy('nombre')
+                ->get();
+        } else {
+            $clientes = Usuario::where('id', session('usuario_id'))->get();
+        }
 
         $especialidades = Especialidad::orderBy('nombre_especialidad')->get();
 
@@ -42,18 +76,37 @@ class IncidenciaController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'cliente_id' => 'required|exists:usuarios,id',
+        if (!session()->has('usuario_id')) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión para registrar una incidencia.');
+        }
+
+        if (session('usuario_rol') === 'tecnico') {
+            return redirect()->route('incidencias.index')
+                ->with('error', 'Los técnicos no pueden crear incidencias desde este panel.');
+        }
+
+        $rules = [
             'especialidad_id' => 'required|exists:especialidades,id',
-            'tecnico_id' => 'nullable|exists:tecnicos,id',
             'descripcion' => 'required|string',
             'direccion' => 'required|string|max:255',
             'telefono_contacto' => 'required|string|max:20',
             'fecha_servicio' => 'required|date',
             'tipo_urgencia' => 'required|in:Estandar,Urgente'
-        ]);
+        ];
 
-        $cliente = Usuario::findOrFail($request->cliente_id);
+        if (session('usuario_rol') === 'admin') {
+            $rules['cliente_id'] = 'required|exists:usuarios,id';
+            $rules['tecnico_id'] = 'nullable|exists:tecnicos,id';
+        }
+
+        $request->validate($rules);
+
+        $clienteId = session('usuario_rol') === 'admin'
+            ? $request->cliente_id
+            : session('usuario_id');
+
+        $cliente = Usuario::findOrFail($clienteId);
 
         if ($cliente->rol !== 'particular') {
             return back()
@@ -63,9 +116,8 @@ class IncidenciaController extends Controller
 
         $estado = 'Pendiente';
         $tecnicoId = null;
-        $especialidadId = $request->especialidad_id;
 
-        if ($request->filled('tecnico_id')) {
+        if (session('usuario_rol') === 'admin' && $request->filled('tecnico_id')) {
             $tecnico = Tecnico::findOrFail($request->tecnico_id);
 
             if (!$tecnico->disponible) {
@@ -86,9 +138,9 @@ class IncidenciaController extends Controller
 
         Incidencia::create([
             'localizador' => 'INC-' . random_int(100000, 999999),
-            'cliente_id' => $request->cliente_id,
+            'cliente_id' => $clienteId,
             'tecnico_id' => $tecnicoId,
-            'especialidad_id' => $especialidadId,
+            'especialidad_id' => $request->especialidad_id,
             'descripcion' => $request->descripcion,
             'direccion' => $request->direccion,
             'telefono_contacto' => $request->telefono_contacto,
@@ -98,11 +150,22 @@ class IncidenciaController extends Controller
             'created_at' => now()
         ]);
 
-        return redirect()->route('incidencias.index');
+        return redirect()->route('incidencias.index')
+            ->with('success', 'Incidencia registrada correctamente.');
     }
 
     public function edit($id)
     {
+        if (!session()->has('usuario_id')) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión para editar incidencias.');
+        }
+
+        if (session('usuario_rol') !== 'admin') {
+            return redirect()->route('incidencias.index')
+                ->with('error', 'Solo el administrador puede editar incidencias.');
+        }
+
         $incidencia = Incidencia::findOrFail($id);
 
         $clientes = Usuario::where('rol', 'particular')
@@ -125,6 +188,16 @@ class IncidenciaController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (!session()->has('usuario_id')) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión para actualizar incidencias.');
+        }
+
+        if (session('usuario_rol') !== 'admin') {
+            return redirect()->route('incidencias.index')
+                ->with('error', 'Solo el administrador puede actualizar incidencias.');
+        }
+
         $request->validate([
             'cliente_id' => 'required|exists:usuarios,id',
             'especialidad_id' => 'required|exists:especialidades,id',
@@ -194,14 +267,26 @@ class IncidenciaController extends Controller
             'estado' => $request->estado
         ]);
 
-        return redirect()->route('incidencias.index');
+        return redirect()->route('incidencias.index')
+            ->with('success', 'Incidencia actualizada correctamente.');
     }
 
     public function destroy($id)
     {
+        if (!session()->has('usuario_id')) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión para eliminar incidencias.');
+        }
+
+        if (session('usuario_rol') !== 'admin') {
+            return redirect()->route('incidencias.index')
+                ->with('error', 'Solo el administrador puede eliminar incidencias.');
+        }
+
         $incidencia = Incidencia::findOrFail($id);
         $incidencia->delete();
 
-        return redirect()->route('incidencias.index');
+        return redirect()->route('incidencias.index')
+            ->with('success', 'Incidencia eliminada correctamente.');
     }
 }
