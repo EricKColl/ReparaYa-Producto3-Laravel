@@ -11,8 +11,29 @@ use Illuminate\Database\QueryException;
 
 class UsuarioController extends Controller
 {
+    private function bloquearSiNoEsAdmin()
+    {
+        if (!session()->has('usuario_id')) {
+            return redirect()
+                ->route('login')
+                ->with('error', 'Debes iniciar sesión para acceder a esta sección.');
+        }
+
+        if (session('usuario_rol') !== 'admin') {
+            return redirect()
+                ->route('home')
+                ->with('error', 'Solo el administrador puede acceder a la gestión de usuarios.');
+        }
+
+        return null;
+    }
+
     public function index()
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         $usuarios = Usuario::orderBy('id')->get();
 
         return view('usuarios.index', compact('usuarios'));
@@ -20,11 +41,19 @@ class UsuarioController extends Controller
 
     public function create()
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         return view('usuarios.create');
     }
 
     public function store(Request $request)
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         $request->validate([
             'nombre' => 'required|string|max:100',
             'email' => 'required|email|max:100|unique:usuarios,email',
@@ -49,6 +78,10 @@ class UsuarioController extends Controller
 
     public function edit($id)
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         $usuario = Usuario::findOrFail($id);
 
         return view('usuarios.edit', compact('usuario'));
@@ -56,6 +89,10 @@ class UsuarioController extends Controller
 
     public function update(Request $request, $id)
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         $usuario = Usuario::findOrFail($id);
 
         $request->validate([
@@ -86,6 +123,10 @@ class UsuarioController extends Controller
 
     public function destroy($id)
     {
+        if ($bloqueo = $this->bloquearSiNoEsAdmin()) {
+            return $bloqueo;
+        }
+
         $usuario = Usuario::findOrFail($id);
 
         if ((int) session('usuario_id') === (int) $usuario->id) {

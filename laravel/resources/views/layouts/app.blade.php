@@ -64,11 +64,23 @@
         }
 
         .brand {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            min-width: 260px;
-        }
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 260px;
+}
+
+.brand-link {
+    text-decoration: none;
+    border-radius: 22px;
+    transition: transform 0.14s ease, opacity 0.14s ease, filter 0.14s ease;
+}
+
+.brand-link:hover {
+    transform: translateY(-1px);
+    opacity: 0.96;
+    filter: drop-shadow(0 10px 18px rgba(15, 111, 255, 0.16));
+}
 
         .brand-mark {
             width: 54px;
@@ -129,6 +141,19 @@
             font-size: 14px;
             font-weight: 700;
             flex-wrap: wrap;
+        }
+
+        .role-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            color: #d7e7f8;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+            font-size: 13px;
+            font-weight: 900;
         }
 
         .logout-btn {
@@ -367,27 +392,71 @@
 </head>
 <body>
 
+@php
+    $usuarioAutenticado = session()->has('usuario_id');
+    $rolSesion = session('usuario_rol');
+
+    $rolTexto = 'Invitado';
+
+    if ($rolSesion === 'admin') {
+        $rolTexto = 'Administrador';
+    } elseif ($rolSesion === 'tecnico') {
+        $rolTexto = 'Técnico';
+    } elseif ($rolSesion === 'particular') {
+        $rolTexto = 'Cliente';
+    }
+@endphp
+
 <header>
     <div class="topbar">
-        <div class="brand">
-            <div class="brand-mark">RY</div>
-            <div class="brand-title">ReparaYa</div>
-        </div>
+        <a href="{{ route('home') }}" class="brand brand-link" aria-label="Ir al inicio de ReparaYa">
+    <div class="brand-mark">RY</div>
+    <div class="brand-title">ReparaYa</div>
+</a>
 
         <nav>
-            <a href="/" class="{{ request()->routeIs('home') ? 'nav-pill' : '' }}">Inicio</a>
-            <a href="/usuarios" class="{{ request()->routeIs('usuarios.*') ? 'nav-pill' : '' }}">Usuarios</a>
-            <a href="/tecnicos" class="{{ request()->routeIs('tecnicos.*') ? 'nav-pill' : '' }}">Técnicos</a>
-            <a href="/especialidades" class="{{ request()->routeIs('especialidades.*') ? 'nav-pill' : '' }}">Especialidades</a>
-            <a href="/incidencias" class="{{ request()->routeIs('incidencias.*') ? 'nav-pill' : '' }}">Incidencias</a>
+            
 
-            @if(session()->has('usuario_id'))
+            @if($usuarioAutenticado && $rolSesion === 'admin')
+                <a href="/usuarios" class="{{ request()->routeIs('usuarios.*') ? 'nav-pill' : '' }}">
+                    Usuarios
+                </a>
+
+                <a href="/tecnicos" class="{{ request()->routeIs('tecnicos.*') ? 'nav-pill' : '' }}">
+                    Técnicos
+                </a>
+
+                <a href="/especialidades" class="{{ request()->routeIs('especialidades.*') ? 'nav-pill' : '' }}">
+                    Especialidades
+                </a>
+
+                <a href="/incidencias" class="{{ request()->routeIs('incidencias.*') ? 'nav-pill' : '' }}">
+                    Incidencias
+                </a>
+            @elseif($usuarioAutenticado && $rolSesion === 'particular')
+                <a href="/incidencias" class="{{ request()->routeIs('incidencias.index') ? 'nav-pill' : '' }}">
+                    Mis incidencias
+                </a>
+
+                <a href="/incidencias/create" class="{{ request()->routeIs('incidencias.create') ? 'nav-pill' : '' }}">
+                    Nueva incidencia
+                </a>
+            @elseif($usuarioAutenticado && $rolSesion === 'tecnico')
+                <a href="/incidencias" class="{{ request()->routeIs('incidencias.*') ? 'nav-pill' : '' }}">
+                    Mis servicios
+                </a>
+            @endif
+
+            @if($usuarioAutenticado)
                 <span class="user-info">
-                    {{ session('usuario_nombre') }} ({{ session('usuario_rol') }})
+                    {{ session('usuario_nombre') }}
+                    <span class="role-chip">{{ $rolTexto }}</span>
                     <a href="/logout" class="logout-btn">Salir</a>
                 </span>
             @else
-                <a href="/login" class="nav-login {{ request()->routeIs('login') ? 'nav-pill' : '' }}">Login</a>
+                <a href="/login" class="nav-login {{ request()->routeIs('login') ? 'nav-pill' : '' }}">
+                    Login
+                </a>
             @endif
         </nav>
     </div>
