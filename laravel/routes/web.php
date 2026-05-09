@@ -7,6 +7,9 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\TecnicoController;
 use App\Http\Controllers\EspecialidadController;
 use App\Http\Controllers\IncidenciaController;
+use App\Http\Controllers\GestoraController;
+use App\Http\Controllers\B2BController;
+use App\Http\Controllers\ComunidadController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -38,3 +41,22 @@ Route::post('/incidencias', [IncidenciaController::class, 'store'])->name('incid
 Route::get('/incidencias/{id}/edit', [IncidenciaController::class, 'edit'])->name('incidencias.edit');
 Route::put('/incidencias/{id}', [IncidenciaController::class, 'update'])->name('incidencias.update');
 Route::delete('/incidencias/{id}', [IncidenciaController::class, 'destroy'])->name('incidencias.destroy');
+Route::get('/gestoras',                [GestoraController::class, 'index'])->name('gestoras.index');
+Route::get('/gestoras/create',         [GestoraController::class, 'create'])->name('gestoras.create');
+Route::post('/gestoras',               [GestoraController::class, 'store'])->name('gestoras.store');
+Route::get('/gestoras/{id}/edit',      [GestoraController::class, 'edit'])->name('gestoras.edit');
+Route::put('/gestoras/{id}',           [GestoraController::class, 'update'])->name('gestoras.update');
+Route::delete('/gestoras/{id}',        [GestoraController::class, 'destroy'])->name('gestoras.destroy');
+Route::get('/b2b/login',              [B2BController::class, 'showLogin'])->name('b2b.login');
+Route::post('/b2b/login',             [B2BController::class, 'login'])->name('b2b.login.submit');
+Route::get('/b2b/logout',             [B2BController::class, 'logout'])->name('b2b.logout');
+Route::get('/b2b/panel',              [B2BController::class, 'panel'])->name('b2b.panel');
+Route::get('/b2b/aviso/create',       [B2BController::class, 'createAviso'])->name('b2b.create_aviso');
+Route::post('/b2b/aviso',             [B2BController::class, 'storeAviso'])->name('b2b.store_aviso');
+Route::get('/liquidaciones',          [B2BController::class, 'liquidaciones'])->name('liquidaciones.index');
+Route::get('/comunidades', [ComunidadController::class, 'index'])->name('comunidades.index');
+Route::get('/comunidades/create', [ComunidadController::class, 'create'])->name('comunidades.create');
+Route::post('/comunidades', [ComunidadController::class, 'store'])->name('comunidades.store');
+Route::get('/comunidades/{id}/edit', [ComunidadController::class, 'edit'])->name('comunidades.edit');
+Route::put('/comunidades/{id}', [ComunidadController::class, 'update'])->name('comunidades.update');
+Route::delete('/comunidades/{id}', [ComunidadController::class, 'destroy'])->name('comunidades.destroy');
