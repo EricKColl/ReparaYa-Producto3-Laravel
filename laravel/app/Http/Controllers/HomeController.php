@@ -26,16 +26,18 @@ class HomeController extends Controller
         }
 
         $dashboard = $this->obtenerDashboardGeneral();
-$homeData = $this->obtenerHomePorRol($usuario, $tipoInicio);
-$panelUsuario = $homeData;
+        $homeData = $this->obtenerHomePorRol($usuario, $tipoInicio);
+        $panelUsuario = $homeData;
+        $calendarData = $this->obtenerCalendarioPorRol($usuario, $tipoInicio);
 
-return view('home', compact(
-    'usuario',
-    'tipoInicio',
-    'dashboard',
-    'homeData',
-    'panelUsuario'
-));
+        return view('home', compact(
+            'usuario',
+            'tipoInicio',
+            'dashboard',
+            'homeData',
+            'panelUsuario',
+            'calendarData'
+        ));
     }
 
     private function obtenerDashboardGeneral(): array
@@ -256,6 +258,97 @@ return view('home', compact(
             'porcentajes' => [],
             'proxima' => null
         ];
+    }
+
+    private function obtenerCalendarioPorRol(?array $usuario, string $tipoInicio): array
+    {
+        if ($usuario === null) {
+            return [
+                'calendarTitle' => null,
+                'calendarSubtitle' => null,
+                'calendarEvents' => [],
+            ];
+        }
+
+        if ($tipoInicio === 'admin') {
+            $incidencias = Incidencia::with(['cliente', 'tecnico', 'especialidad', 'comunidad'])
+                ->orderBy('fecha_servicio')
+                ->get();
+
+            return [
+                'calendarTitle' => 'Calendario global de servicios',
+                'calendarSubtitle' => null,
+                'calendarEvents' => $this->mapearIncidenciasParaCalendario($incidencias, 'admin'),
+            ];
+        }
+
+        if ($tipoInicio === 'particular') {
+            $incidencias = Incidencia::with(['tecnico', 'especialidad', 'comunidad'])
+                ->where('cliente_id', $usuario['id'])
+                ->orderBy('fecha_servicio')
+                ->get();
+
+            return [
+                'calendarTitle' => 'Calendario de mis reparaciones',
+                'calendarSubtitle' => null,
+                'calendarEvents' => $this->mapearIncidenciasParaCalendario($incidencias, 'particular'),
+            ];
+        }
+
+        if ($tipoInicio === 'tecnico') {
+            $tecnico = Tecnico::where('usuario_id', $usuario['id'])->first();
+
+            if (!$tecnico) {
+                return [
+                    'calendarTitle' => 'Calendario técnico',
+                    'calendarSubtitle' => null,
+                    'calendarEvents' => [],
+                ];
+            }
+
+            $incidencias = Incidencia::with(['cliente', 'especialidad', 'comunidad'])
+                ->where('tecnico_id', $tecnico->id)
+                ->orderBy('fecha_servicio')
+                ->get();
+
+            return [
+                'calendarTitle' => 'Calendario de servicios asignados',
+                'calendarSubtitle' => null,
+                'calendarEvents' => $this->mapearIncidenciasParaCalendario($incidencias, 'tecnico'),
+            ];
+        }
+
+        return [
+            'calendarTitle' => 'Calendario operativo',
+            'calendarSubtitle' => null,
+            'calendarEvents' => [],
+        ];
+    }
+
+    private function mapearIncidenciasParaCalendario($incidencias, string $contexto): array
+    {
+        return $incidencias->map(function ($incidencia) use ($contexto) {
+            $especialidad = $incidencia->especialidad->nombre_especialidad ?? 'Servicio';
+            $codigo = $incidencia->localizador ?? 'INC-' . $incidencia->id;
+
+            if ($incidencia->comunidad) {
+                $titulo = 'B2B · ' . $incidencia->comunidad->nombre;
+            } elseif ($contexto === 'tecnico') {
+                $titulo = ($incidencia->cliente->nombre ?? 'Cliente') . ' · ' . $especialidad;
+            } elseif ($contexto === 'particular') {
+                $titulo = $especialidad . ' · ' . ($incidencia->tecnico->nombre_completo ?? 'Sin técnico');
+            } else {
+                $titulo = $especialidad . ' · ' . ($incidencia->cliente->nombre ?? 'Sin cliente');
+            }
+
+            return [
+                'fecha' => $incidencia->fecha_servicio,
+                'codigo' => $codigo,
+                'titulo' => $titulo,
+                'estado' => $incidencia->estado,
+                'urgencia' => $incidencia->tipo_urgencia,
+            ];
+        })->toArray();
     }
 
     private function porcentaje(int $valor, int $total): int

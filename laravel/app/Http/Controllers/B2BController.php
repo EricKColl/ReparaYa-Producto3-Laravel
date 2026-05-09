@@ -5,21 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Gestora;
 use App\Models\Comunidad;
 use App\Models\Incidencia;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-/**
- * B2BController
- * Gestiona dos funcionalidades principales:
- *   1. Panel de la gestora: ver sus servicios y comisiones acumuladas
- *   2. Panel del administrador: ver liquidaciones pendientes por gestora
- */
 class B2BController extends Controller
 {
-    // -----------------------------------------------------------------------
-    // LOGIN de la gestora
-    // -----------------------------------------------------------------------
-
     public function showLogin()
     {
         return view('b2b.login');
@@ -34,43 +25,48 @@ class B2BController extends Controller
 
         $gestora = Gestora::where('email', $request->email)->first();
 
-        // Comprobamos que existe y que la contraseña es correcta
         if (!$gestora || !Hash::check($request->password, $gestora->password)) {
-            return back()->withErrors(['email' => 'Credenciales incorrectas.']);
+            return back()
+                ->withErrors(['email' => 'Credenciales incorrectas.'])
+                ->withInput();
         }
 
-        // Guardamos en sesión que es una gestora logueada
-        session(['gestora_id'     => $gestora->id]);
-        session(['gestora_nombre' => $gestora->nombre]);
+        session()->forget([
+            'usuario_id',
+            'usuario_nombre',
+            'usuario_rol',
+        ]);
+
+        session([
+            'gestora_id'     => $gestora->id,
+            'gestora_nombre' => $gestora->nombre,
+        ]);
 
         return redirect()->route('b2b.panel');
     }
 
     public function logout()
     {
-        session()->forget(['gestora_id', 'gestora_nombre']);
-        return redirect()->route('b2b.login');
-    }
+        session()->forget([
+            'gestora_id',
+            'gestora_nombre',
+        ]);
 
-    // -----------------------------------------------------------------------
-    // PANEL DE LA GESTORA
-    // Muestra los servicios de sus comunidades y las comisiones mes a mes
-    // -----------------------------------------------------------------------
+        return redirect()->route('login');
+    }
 
     public function panel(Request $request)
     {
-        // Comprobamos que hay una gestora logueada
         if (!session('gestora_id')) {
-            return redirect()->route('b2b.login');
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión como gestora para acceder al panel.');
         }
 
-        $gestora = Gestora::findOrFail(session('gestora_id'));
+        $gestora = Gestora::with('comunidades')->findOrFail(session('gestora_id'));
 
-        // Mes y año para el filtro (por defecto el mes actual)
-        $mes  = $request->get('mes',  now()->month);
-        $anyo = $request->get('anyo', now()->year);
+        $mes  = (int) $request->get('mes', now()->month);
+        $anyo = (int) $request->get('anyo', now()->year);
 
-        // Servicios de esta gestora en el mes seleccionado
         $servicios = Incidencia::with(['comunidad', 'especialidad'])
             ->where('gestora_id', $gestora->id)
             ->whereMonth('fecha_servicio', $mes)
@@ -78,122 +74,304 @@ class B2BController extends Controller
             ->orderBy('fecha_servicio', 'desc')
             ->get();
 
-        // Para cada servicio calculamos su comisión
-        // comisión = precio_base * porcentaje_gestora / 100
-        $serviciosConComision = $servicios->map(function ($inc) use ($gestora) {
-            $inc->comision_calculada = round($inc->precio_base * ($gestora->comision / 100), 2);
-            return $inc;
+        $serviciosConComision = $servicios->map(function ($incidencia) use ($gestora) {
+            $precioBase = (float) ($incidencia->precio_base ?? 0);
+            $porcentaje = (float) ($gestora->comision ?? 0);
+
+            $incidencia->comision_calculada = $incidencia->estado === 'Finalizada'
+                ? round($precioBase * ($porcentaje / 100), 2)
+                : 0;
+
+            return $incidencia;
         });
 
-        // Total de comisiones del mes
+        $totalServicios = $serviciosConComision->count();
+        $pendientes = $serviciosConComision->where('estado', 'Pendiente')->count();
+        $asignados = $serviciosConComision->where('estado', 'Asignada')->count();
+        $finalizados = $serviciosConComision->where('estado', 'Finalizada')->count();
+        $cancelados = $serviciosConComision->where('estado', 'Cancelada')->count();
+
+        $totalImporte = $serviciosConComision
+            ->where('estado', 'Finalizada')
+            ->sum('precio_base');
+
         $totalComisiones = $serviciosConComision->sum('comision_calculada');
 
-        // Lista de años disponibles para el filtro (desde 2024 hasta año actual)
-        $anyos = range(2024, now()->year);
+        $actividadAbierta = $pendientes + $asignados;
+
+        $proximoServicio = Incidencia::with(['comunidad', 'especialidad'])
+            ->where('gestora_id', $gestora->id)
+            ->whereIn('estado', ['Pendiente', 'Asignada'])
+            ->where('fecha_servicio', '>=', now())
+            ->orderBy('fecha_servicio')
+            ->first();
+
+        $resumen = [
+    'total_servicios' => $totalServicios,
+    'pendientes' => $pendientes,
+    'asignados' => $asignados,
+    'finalizados' => $finalizados,
+    'cancelados' => $cancelados,
+    'comunidades' => $gestora->comunidades->count(),
+    'total_importe' => $totalImporte,
+    'total_comisiones' => $totalComisiones,
+    'porcentaje_finalizados' => $this->porcentaje($finalizados, $totalServicios),
+    'porcentaje_pendientes' => $this->porcentaje($actividadAbierta, $totalServicios),
+    'proximo_servicio' => $proximoServicio,
+];
+
+$calendarEvents = Incidencia::with(['comunidad', 'especialidad'])
+    ->where('gestora_id', $gestora->id)
+    ->orderBy('fecha_servicio')
+    ->get()
+    ->map(function ($incidencia) {
+        return [
+            'fecha' => $incidencia->fecha_servicio,
+            'codigo' => $incidencia->localizador ?? 'B2B-' . $incidencia->id,
+            'titulo' => ($incidencia->comunidad->nombre ?? 'Comunidad sin asignar')
+                . ' · '
+                . ($incidencia->especialidad->nombre_especialidad ?? 'Servicio'),
+            'estado' => $incidencia->estado,
+            'urgencia' => $incidencia->tipo_urgencia,
+        ];
+    })
+    ->toArray();
+
+$calendarData = [
+    'calendarTitle' => 'Calendario de avisos gestionados',
+    'calendarSubtitle' => null,
+    'calendarEvents' => $calendarEvents,
+];
+
+$anyos = range(2024, max((int) now()->year, $anyo));
 
         return view('b2b.panel', compact(
+    'gestora',
+    'serviciosConComision',
+    'totalComisiones',
+    'mes',
+    'anyo',
+    'anyos',
+    'resumen',
+    'calendarData'
+));
+    }
+
+    public function createAviso()
+    {
+        if (!session('gestora_id')) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión como gestora para crear avisos.');
+        }
+
+        $gestora = Gestora::findOrFail(session('gestora_id'));
+
+        $comunidades = Comunidad::where('gestora_id', $gestora->id)
+            ->orderBy('nombre')
+            ->get();
+
+        $especialidades = \App\Models\Especialidad::orderBy('nombre_especialidad')->get();
+
+        return view('b2b.create_aviso', compact(
             'gestora',
-            'serviciosConComision',
-            'totalComisiones',
+            'comunidades',
+            'especialidades'
+        ));
+    }
+
+    public function storeAviso(Request $request)
+    {
+        if (!session('gestora_id')) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión como gestora para crear avisos.');
+        }
+
+        $gestora = Gestora::findOrFail(session('gestora_id'));
+
+        $request->validate([
+            'comunidad_id'      => 'required|exists:comunidades,id',
+            'especialidad_id'   => 'required|exists:especialidades,id',
+            'descripcion'       => 'required|string',
+            'telefono_contacto' => 'required|string|max:20',
+            'fecha_servicio'    => 'required|date',
+            'tipo_urgencia'     => 'required|in:Estandar,Urgente',
+            'precio_base'       => 'required|numeric|min:0',
+            'estado'            => 'required|in:Pendiente,Finalizada',
+        ]);
+
+        $comunidad = Comunidad::where('id', $request->comunidad_id)
+            ->where('gestora_id', $gestora->id)
+            ->firstOrFail();
+
+        $cliente = Usuario::where('rol', 'particular')->orderBy('id')->first();
+
+        if (!$cliente) {
+            return back()
+                ->withErrors(['cliente_id' => 'No existe ningún usuario particular en el sistema para registrar el aviso B2B.'])
+                ->withInput();
+        }
+
+        Incidencia::create([
+            'localizador'       => 'B2B-' . random_int(100000, 999999),
+            'cliente_id'        => $cliente->id,
+            'tecnico_id'        => null,
+            'especialidad_id'   => $request->especialidad_id,
+            'descripcion'       => $request->descripcion,
+            'direccion'         => $comunidad->direccion,
+            'telefono_contacto' => $request->telefono_contacto,
+            'fecha_servicio'    => $request->fecha_servicio,
+            'tipo_urgencia'     => $request->tipo_urgencia,
+            'estado'            => $request->estado,
+            'gestora_id'        => $gestora->id,
+            'comunidad_id'      => $comunidad->id,
+            'precio_base'       => $request->precio_base,
+            'created_at'        => now(),
+        ]);
+
+        return redirect()
+            ->route('b2b.panel')
+            ->with('success', 'Aviso creado correctamente.');
+    }
+
+    public function editAviso($id)
+    {
+        if (!session('gestora_id')) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión como gestora para editar avisos.');
+        }
+
+        $gestora = Gestora::findOrFail(session('gestora_id'));
+
+        $aviso = Incidencia::where('id', $id)
+            ->where('gestora_id', $gestora->id)
+            ->firstOrFail();
+
+        $comunidades = Comunidad::where('gestora_id', $gestora->id)
+            ->orderBy('nombre')
+            ->get();
+
+        $especialidades = \App\Models\Especialidad::orderBy('nombre_especialidad')->get();
+
+        return view('b2b.edit_aviso', compact(
+            'gestora',
+            'aviso',
+            'comunidades',
+            'especialidades'
+        ));
+    }
+
+    public function updateAviso(Request $request, $id)
+    {
+        if (!session('gestora_id')) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión como gestora para actualizar avisos.');
+        }
+
+        $gestora = Gestora::findOrFail(session('gestora_id'));
+
+        $aviso = Incidencia::where('id', $id)
+            ->where('gestora_id', $gestora->id)
+            ->firstOrFail();
+
+        $request->validate([
+            'comunidad_id'      => 'required|exists:comunidades,id',
+            'especialidad_id'   => 'required|exists:especialidades,id',
+            'descripcion'       => 'required|string',
+            'telefono_contacto' => 'required|string|max:20',
+            'fecha_servicio'    => 'required|date',
+            'tipo_urgencia'     => 'required|in:Estandar,Urgente',
+            'precio_base'       => 'required|numeric|min:0',
+            'estado'            => 'required|in:Pendiente,Finalizada,Cancelada',
+        ]);
+
+        $comunidad = Comunidad::where('id', $request->comunidad_id)
+            ->where('gestora_id', $gestora->id)
+            ->firstOrFail();
+
+        $aviso->update([
+            'comunidad_id'      => $comunidad->id,
+            'especialidad_id'   => $request->especialidad_id,
+            'descripcion'       => $request->descripcion,
+            'direccion'         => $comunidad->direccion,
+            'telefono_contacto' => $request->telefono_contacto,
+            'fecha_servicio'    => $request->fecha_servicio,
+            'tipo_urgencia'     => $request->tipo_urgencia,
+            'precio_base'       => $request->precio_base,
+            'estado'            => $request->estado,
+        ]);
+
+        return redirect()
+            ->route('b2b.panel')
+            ->with('success', 'Aviso actualizado correctamente.');
+    }
+
+    public function destroyAviso($id)
+    {
+        if (!session('gestora_id')) {
+            return redirect()->route('login')
+                ->with('error', 'Debes iniciar sesión como gestora para eliminar avisos.');
+        }
+
+        $gestora = Gestora::findOrFail(session('gestora_id'));
+
+        $aviso = Incidencia::where('id', $id)
+            ->where('gestora_id', $gestora->id)
+            ->firstOrFail();
+
+        $aviso->delete();
+
+        return redirect()
+            ->route('b2b.panel')
+            ->with('success', 'Aviso eliminado correctamente.');
+    }
+
+    public function liquidaciones(Request $request)
+    {
+        if (session('usuario_rol') !== 'admin') {
+            return redirect('/')
+                ->with('error', 'Solo el administrador puede consultar liquidaciones.');
+        }
+
+        $mes  = (int) $request->get('mes', now()->month);
+        $anyo = (int) $request->get('anyo', now()->year);
+
+        $gestoras = Gestora::with(['incidencias' => function ($query) use ($mes, $anyo) {
+            $query->where('estado', 'Finalizada')
+                ->whereMonth('fecha_servicio', $mes)
+                ->whereYear('fecha_servicio', $anyo);
+        }])
+            ->orderBy('nombre')
+            ->get();
+
+        $liquidaciones = $gestoras->map(function ($gestora) {
+            $totalServicios = $gestora->incidencias->count();
+            $totalImporte = $gestora->incidencias->sum('precio_base');
+            $totalComision = round($totalImporte * ((float) $gestora->comision / 100), 2);
+
+            return [
+                'gestora' => $gestora,
+                'total_servicios' => $totalServicios,
+                'total_importe' => $totalImporte,
+                'total_comision' => $totalComision,
+            ];
+        });
+
+        $anyos = range(2024, max((int) now()->year, $anyo));
+
+        return view('liquidaciones.index', compact(
+            'liquidaciones',
             'mes',
             'anyo',
             'anyos'
         ));
     }
 
-    public function createAviso()
+    private function porcentaje(int $valor, int $total): int
     {
-        if (!session('gestora_id')) {
-            return redirect()->route('b2b.login');
+        if ($total <= 0) {
+            return 0;
         }
 
-        $gestora      = Gestora::findOrFail(session('gestora_id'));
-        $comunidades  = $gestora->comunidades;
-        $especialidades = \App\Models\Especialidad::all();
-
-        return view('b2b.create_aviso', compact('gestora', 'comunidades', 'especialidades'));
-    }
-
-    public function storeAviso(Request $request)
-    {
-        if (!session('gestora_id')) {
-            return redirect()->route('b2b.login');
-        }
-
-        $gestora = Gestora::findOrFail(session('gestora_id'));
-
-        $request->validate([
-            'comunidad_id' => 'required|exists:comunidades,id',
-            'descripcion'  => 'required|string',
-            'telefono_contacto' => 'required|string|max:20',
-            'fecha_servicio'    => 'required|date',
-            'tipo_urgencia'     => 'required|in:Estandar,Urgente',
-            'precio_base'       => 'required|numeric|min:0',
-            'especialidad_id'   => 'required|exists:especialidades,id',
-        ]);
-
-        // Verificamos que la comunidad pertenece a esta gestora
-        $comunidad = Comunidad::where('id', $request->comunidad_id)
-            ->where('gestora_id', $gestora->id)
-            ->firstOrFail();
-
-        Incidencia::create([
-            'localizador'       => 'B2B-' . random_int(100000, 999999),
-            'cliente_id'        => 1, // Se puede ajustar según el proyecto
-            'descripcion'       => $request->descripcion,
-            'direccion'         => $comunidad->direccion, // dirección de la comunidad
-            'telefono_contacto' => $request->telefono_contacto,
-            'fecha_servicio'    => $request->fecha_servicio,
-            'tipo_urgencia'     => $request->tipo_urgencia,
-            'estado'            => 'Pendiente',
-            'gestora_id'        => $gestora->id,
-            'comunidad_id'      => $comunidad->id,
-            'precio_base'       => $request->precio_base,
-            'created_at'        => now(),
-            'especialidad_id'   => $request->especialidad_id
-        ]);
-
-        return redirect()->route('b2b.panel')->with('success', 'Aviso creado correctamente.');
-    }
-
-    // -----------------------------------------------------------------------
-    // LIQUIDACIONES (panel del ADMINISTRADOR de ReparaYa)
-    // Muestra cuánto debe pagar a cada gestora en un mes
-    // -----------------------------------------------------------------------
-
-    public function liquidaciones(Request $request)
-    {
-        // Solo el administrador puede ver esto
-        if (session('usuario_rol') !== 'admin') {
-            return redirect('/')->with('error', 'Acceso denegado.');
-        }
-
-        $mes  = $request->get('mes',  now()->month);
-        $anyo = $request->get('anyo', now()->year);
-
-        // Obtenemos todas las gestoras con sus servicios finalizados en el mes
-        $gestoras = Gestora::with(['incidencias' => function ($query) use ($mes, $anyo) {
-            $query->where('estado', 'Finalizada')
-                ->whereMonth('fecha_servicio', $mes)
-                ->whereYear('fecha_servicio', $anyo);
-        }])->get();
-
-        // Calculamos la liquidación de cada gestora
-        $liquidaciones = $gestoras->map(function ($gestora) {
-            $totalServicios = $gestora->incidencias->count();
-            $totalImporte   = $gestora->incidencias->sum('precio_base');
-            $totalComision  = round($totalImporte * ($gestora->comision / 100), 2);
-
-            return [
-                'gestora'         => $gestora,
-                'total_servicios' => $totalServicios,
-                'total_importe'   => $totalImporte,
-                'total_comision'  => $totalComision,
-            ];
-        });
-
-        $anyos = range(2024, now()->year);
-
-        return view('liquidaciones.index', compact('liquidaciones', 'mes', 'anyo', 'anyos'));
+        return (int) round(($valor / $total) * 100);
     }
 }

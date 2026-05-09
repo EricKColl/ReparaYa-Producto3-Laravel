@@ -5,45 +5,26 @@
 @section('content')
 
 <style>
-    .login-shell {
-        min-height: calc(100vh - 250px);
-        display: grid;
-        place-items: center;
-        padding: 18px 0;
-    }
-
-    .login-wrapper {
-        width: 100%;
-        max-width: 500px;
-        animation: loginEnter 0.45s ease both;
-    }
-
-    @keyframes loginEnter {
-        from {
-            opacity: 0;
-            transform: translateY(16px) scale(0.985);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
+    .login-page {
+        min-height: 560px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 34px 16px;
     }
 
     .login-card {
         position: relative;
         overflow: hidden;
-        border-radius: 32px;
-        padding: 34px 30px 28px;
+        width: min(540px, 100%);
+        border-radius: 34px;
+        padding: 42px 34px 34px;
         background:
-            radial-gradient(circle at top left, rgba(86, 199, 255, 0.18), transparent 25%),
-            radial-gradient(circle at top right, rgba(15, 111, 255, 0.12), transparent 22%),
-            radial-gradient(circle at bottom, rgba(15, 111, 255, 0.07), transparent 34%),
-            linear-gradient(135deg, #ffffff 0%, #f7fbff 100%);
+            radial-gradient(circle at 14% 10%, rgba(86, 199, 255, 0.22), transparent 28%),
+            radial-gradient(circle at 86% 8%, rgba(15, 111, 255, 0.12), transparent 24%),
+            linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
         border: 1px solid rgba(15, 23, 42, 0.08);
-        box-shadow:
-            0 28px 60px rgba(15, 23, 42, 0.12),
-            0 8px 22px rgba(15, 111, 255, 0.07);
+        box-shadow: 0 28px 70px rgba(15, 23, 42, 0.14);
     }
 
     .login-card::before {
@@ -51,307 +32,212 @@
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background:
-            linear-gradient(rgba(15, 111, 255, 0.026) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(15, 111, 255, 0.026) 1px, transparent 1px);
-        background-size: 28px 28px;
-        mask-image: radial-gradient(circle at center, black 0%, transparent 88%);
+        background-image:
+            linear-gradient(rgba(15, 111, 255, 0.035) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(15, 111, 255, 0.035) 1px, transparent 1px);
+        background-size: 34px 34px;
+        mask-image: radial-gradient(circle at center, black 0%, transparent 86%);
     }
 
-    .login-card::after {
-        content: "";
-        position: absolute;
-        top: -120px;
-        left: -120px;
-        width: 260px;
-        height: 260px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(86, 199, 255, 0.22), transparent 68%);
-        filter: blur(10px);
-        pointer-events: none;
-    }
-
-    .login-head {
+    .login-content {
         position: relative;
         z-index: 2;
-        text-align: center;
-        margin-bottom: 28px;
-    }
-
-    .login-logo-wrap {
-        position: relative;
-        width: 102px;
-        height: 102px;
-        margin: 0 auto 18px;
-        display: grid;
-        place-items: center;
-    }
-
-    .login-logo-wrap::before {
-        content: "";
-        position: absolute;
-        inset: -10px;
-        border-radius: 50%;
-        background: radial-gradient(circle, rgba(15, 111, 255, 0.20), transparent 68%);
-        filter: blur(9px);
-    }
-
-    .login-logo-ring {
-        position: absolute;
-        inset: 0;
-        border-radius: 50%;
-        border: 1px solid rgba(15, 111, 255, 0.16);
-        box-shadow: 0 0 26px rgba(86, 199, 255, 0.16);
-    }
-
-    .login-logo-ring::before {
-        content: "";
-        position: absolute;
-        inset: 13px;
-        border-radius: 50%;
-        border: 1px solid rgba(15, 111, 255, 0.10);
     }
 
     .login-logo {
-        position: relative;
-        z-index: 2;
-        width: 74px;
-        height: 74px;
-        border-radius: 22px;
+        width: 84px;
+        height: 84px;
+        margin: 0 auto 24px;
+        border-radius: 24px;
         display: grid;
         place-items: center;
-        background: linear-gradient(135deg, #0f6fff, #56c7ff);
         color: white;
-        font-size: 28px;
+        font-size: 31px;
         font-weight: 900;
         letter-spacing: -1px;
+        background: linear-gradient(135deg, #0f6fff, #56c7ff);
         box-shadow:
             0 18px 34px rgba(15, 111, 255, 0.26),
-            inset 0 1px 0 rgba(255,255,255,0.20);
+            0 0 0 14px rgba(15, 111, 255, 0.06);
     }
 
     .login-title {
-        margin: 0;
+        margin: 0 0 26px;
+        text-align: center;
         color: #0f172a;
         font-size: 38px;
-        line-height: 1.05;
+        line-height: 1;
         letter-spacing: -1.3px;
     }
 
-    .login-alert {
-        position: relative;
-        z-index: 2;
-        margin-bottom: 18px;
-        padding: 15px 16px;
-        border-radius: 18px;
+    .login-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        padding: 7px;
+        margin-bottom: 24px;
+        border-radius: 999px;
+        background: #edf4fb;
+        border: 1px solid rgba(15, 23, 42, 0.07);
+    }
+
+    .login-tab {
+        border: none;
+        cursor: pointer;
+        padding: 12px 10px;
+        border-radius: 999px;
+        background: transparent;
+        color: #566b84;
         font-size: 14px;
-        line-height: 1.6;
-        font-weight: 700;
-        background: #fff0f2;
-        color: #9f1d2e;
-        border: 1px solid rgba(220, 53, 69, 0.20);
+        font-weight: 900;
+        font-family: Arial, sans-serif;
+        transition: background 0.14s ease, color 0.14s ease, box-shadow 0.14s ease;
     }
 
-    .login-alert strong {
-        display: block;
-        margin-bottom: 6px;
-    }
-
-    .login-alert ul {
-        margin: 8px 0 0;
-        padding-left: 18px;
+    .login-tab.active {
+        color: white;
+        background: linear-gradient(135deg, #0f6fff, #56c7ff);
+        box-shadow: 0 12px 24px rgba(15, 111, 255, 0.18);
     }
 
     .login-form {
-        position: relative;
-        z-index: 2;
-        display: grid;
-        gap: 18px;
+        display: none;
     }
 
-    .login-field {
-        display: grid;
-        gap: 8px;
-    }
-
-    .login-label {
-        color: #0f172a;
-        font-size: 14px;
-        font-weight: 800;
-        letter-spacing: -0.2px;
-    }
-
-    .login-input-wrap {
-        position: relative;
-        display: flex;
-        align-items: center;
-    }
-
-    .login-icon {
-        position: absolute;
-        left: 16px;
-        width: 20px;
-        height: 20px;
-        display: grid;
-        place-items: center;
-        color: #64748b;
-        pointer-events: none;
-        z-index: 2;
-    }
-
-    .login-icon svg {
-        width: 18px;
-        height: 18px;
+    .login-form.active {
         display: block;
     }
 
-    .login-input {
-        width: 100%;
-        min-height: 56px;
-        padding: 15px 18px 15px 48px;
-        border: 1px solid #d7e0ea;
-        border-radius: 18px;
-        background: rgba(255,255,255,0.96);
-        font-size: 15px;
+    .login-group {
+        margin-bottom: 18px;
+    }
+
+    .login-group label {
+        display: block;
+        margin-bottom: 8px;
         color: #0f172a;
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.60);
-        transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease, background 0.15s ease;
-    }
-
-    .login-input.password-field {
-        padding-right: 108px;
-    }
-
-    .login-input::placeholder {
-        color: #8a99ad;
-    }
-
-    .login-input:focus {
-        outline: none;
-        border-color: rgba(15, 111, 255, 0.48);
-        background: #ffffff;
-        box-shadow:
-            0 0 0 4px rgba(15, 111, 255, 0.10),
-            0 10px 22px rgba(15, 111, 255, 0.07);
-        transform: translateY(-1px);
-    }
-
-    .toggle-password {
-        position: absolute;
-        right: 10px;
-        border: none;
-        background: rgba(15, 111, 255, 0.08);
-        color: #0f6fff;
-        font-size: 12px;
         font-weight: 900;
-        letter-spacing: 0.2px;
-        border-radius: 999px;
-        padding: 10px 14px;
-        cursor: pointer;
-        transition: background 0.15s ease, transform 0.15s ease;
+        font-size: 15px;
     }
 
-    .toggle-password:hover {
-        background: rgba(15, 111, 255, 0.14);
-        transform: translateY(-1px);
-    }
-
-    .login-actions {
-        margin-top: 4px;
-    }
-
-    .login-btn {
-        position: relative;
-        width: 100%;
-        min-height: 56px;
-        border: none;
+    .login-input {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 58px;
+        padding: 0 14px;
         border-radius: 18px;
+        border: 1px solid #d7e2ee;
+        background: #ffffff;
+        transition: border-color 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .login-input:focus-within {
+        border-color: rgba(15, 111, 255, 0.50);
+        box-shadow: 0 0 0 4px rgba(15, 111, 255, 0.10);
+    }
+
+    .login-icon {
+        color: #6b7f98;
+        font-size: 17px;
+        flex: 0 0 auto;
+    }
+
+    .login-input input {
+        width: 100%;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: #0f172a;
+        font-size: 16px;
+        font-family: Arial, sans-serif;
+    }
+
+    .login-input input::placeholder {
+        color: #8aa0b8;
+    }
+
+    .password-toggle {
+        border: none;
         cursor: pointer;
+        padding: 8px 11px;
+        border-radius: 999px;
+        background: #edf4ff;
+        color: #0f6fff;
+        font-size: 13px;
+        font-weight: 900;
+        font-family: Arial, sans-serif;
+    }
+
+    .login-submit {
+        width: 100%;
+        min-height: 58px;
+        margin-top: 8px;
+        border: none;
+        cursor: pointer;
+        border-radius: 18px;
+        color: white;
         font-size: 16px;
         font-weight: 900;
-        letter-spacing: -0.3px;
-        color: white;
+        font-family: Arial, sans-serif;
         background: linear-gradient(135deg, #0f6fff, #56c7ff);
-        box-shadow: 0 14px 28px rgba(15, 111, 255, 0.20);
-        transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
-        overflow: hidden;
+        box-shadow: 0 16px 32px rgba(15, 111, 255, 0.22);
+        transition: transform 0.14s ease, box-shadow 0.14s ease;
     }
 
-    .login-btn::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,0.22) 45%, transparent 62%);
-        transform: translateX(-120%);
-        transition: transform 0.45s ease;
-    }
-
-    .login-btn:hover {
+    .login-submit:hover {
         transform: translateY(-1px);
-        box-shadow: 0 18px 34px rgba(15, 111, 255, 0.25);
+        box-shadow: 0 20px 38px rgba(15, 111, 255, 0.28);
     }
 
-    .login-btn:hover::before {
-        transform: translateX(120%);
+    .login-errors {
+        margin-bottom: 20px;
+        padding: 15px 17px;
+        border-radius: 18px;
+        color: #9f1d2e;
+        background: #fff0f2;
+        border: 1px solid rgba(220, 53, 69, 0.22);
+        font-weight: 800;
+        line-height: 1.55;
     }
 
-    .login-btn.is-loading {
-        cursor: wait;
-        filter: saturate(0.92);
-    }
-
-    .login-btn-text {
-        position: relative;
-        z-index: 2;
+    .login-errors ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+        font-weight: 700;
     }
 
     @media (max-width: 640px) {
-        .login-shell {
-            min-height: auto;
-            padding: 8px 0 4px;
+        .login-page {
+            padding: 16px 0;
         }
 
         .login-card {
-            padding: 24px 18px 22px;
-            border-radius: 24px;
+            padding: 32px 20px 24px;
+            border-radius: 26px;
         }
 
         .login-title {
-            font-size: 31px;
+            font-size: 32px;
         }
 
-        .toggle-password {
-            padding: 9px 12px;
-            font-size: 11px;
-        }
-
-        .login-input.password-field {
-            padding-right: 96px;
+        .login-tabs {
+            grid-template-columns: 1fr;
+            border-radius: 24px;
         }
     }
 </style>
 
-<div class="login-shell">
-    <div class="login-wrapper">
-        <div class="login-card">
+<div class="login-page">
+    <section class="login-card">
+        <div class="login-content">
 
-            <div class="login-head">
-                <div class="login-logo-wrap">
-                    <div class="login-logo-ring"></div>
-                    <div class="login-logo">RY</div>
-                </div>
+            <div class="login-logo">RY</div>
 
-                <h1 class="login-title">Iniciar sesión</h1>
-            </div>
-
-            @if(session('error'))
-                <div class="login-alert">
-                    {{ session('error') }}
-                </div>
-            @endif
+            <h1 class="login-title">Iniciar sesión</h1>
 
             @if ($errors->any())
-                <div class="login-alert">
+                <div class="login-errors">
                     <strong>No se ha podido iniciar sesión.</strong>
                     <ul>
                         @foreach ($errors->all() as $error)
@@ -361,96 +247,140 @@
                 </div>
             @endif
 
-            <form action="{{ route('login.submit') }}" method="POST" class="login-form" id="loginForm">
+            <div class="login-tabs">
+                <button type="button" class="login-tab active" data-login-target="usuario">
+                    Usuario
+                </button>
+
+                <button type="button" class="login-tab" data-login-target="gestora">
+                    Gestora
+                </button>
+            </div>
+
+            <form id="login-usuario" class="login-form active" action="{{ route('login.submit') }}" method="POST">
                 @csrf
 
-                <div class="login-field">
-                    <label for="email" class="login-label">Correo electrónico</label>
-
-                    <div class="login-input-wrap">
-                        <span class="login-icon">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="M4 6.8C4 5.8 4.8 5 5.8 5h12.4C19.2 5 20 5.8 20 6.8v10.4c0 1-.8 1.8-1.8 1.8H5.8C4.8 19 4 18.2 4 17.2V6.8Z" stroke="currentColor" stroke-width="2"/>
-                                <path d="M5 7l7 5 7-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-
+                <div class="login-group">
+                    <label for="usuario_email">Correo electrónico</label>
+                    <div class="login-input">
+                        <span class="login-icon">✉</span>
                         <input
+                            id="usuario_email"
                             type="email"
-                            id="email"
                             name="email"
-                            class="login-input"
                             value="{{ old('email') }}"
                             placeholder="Introduce tu correo electrónico"
+                            autocomplete="email"
                             required
-                            autofocus
                         >
                     </div>
                 </div>
 
-                <div class="login-field">
-                    <label for="password" class="login-label">Contraseña</label>
-
-                    <div class="login-input-wrap">
-                        <span class="login-icon">
-                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                                <path d="M7 10V8a5 5 0 0 1 10 0v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                                <path d="M6.8 10h10.4c1 0 1.8.8 1.8 1.8v6.4c0 1-.8 1.8-1.8 1.8H6.8c-1 0-1.8-.8-1.8-1.8v-6.4c0-1 .8-1.8 1.8-1.8Z" stroke="currentColor" stroke-width="2"/>
-                                <path d="M12 14v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                            </svg>
-                        </span>
-
+                <div class="login-group">
+                    <label for="usuario_password">Contraseña</label>
+                    <div class="login-input">
+                        <span class="login-icon">⌘</span>
                         <input
+                            id="usuario_password"
                             type="password"
-                            id="password"
                             name="password"
-                            class="login-input password-field"
                             placeholder="Introduce tu contraseña"
+                            autocomplete="current-password"
                             required
                         >
-
-                        <button type="button" class="toggle-password" id="togglePassword">
+                        <button type="button" class="password-toggle" data-password-target="usuario_password">
                             Mostrar
                         </button>
                     </div>
                 </div>
 
-                <div class="login-actions">
-                    <button type="submit" class="login-btn" id="loginButton">
-                        <span class="login-btn-text" id="loginButtonText">Entrar al sistema</span>
-                    </button>
+                <button type="submit" class="login-submit">
+                    Entrar al sistema
+                </button>
+            </form>
+
+            <form id="login-gestora" class="login-form" action="{{ url('/b2b/login') }}" method="POST">
+                @csrf
+
+                <div class="login-group">
+                    <label for="gestora_email">Correo electrónico</label>
+                    <div class="login-input">
+                        <span class="login-icon">✉</span>
+                        <input
+                            id="gestora_email"
+                            type="email"
+                            name="email"
+                            placeholder="Introduce el correo de la gestora"
+                            autocomplete="email"
+                            required
+                        >
+                    </div>
                 </div>
+
+                <div class="login-group">
+                    <label for="gestora_password">Contraseña</label>
+                    <div class="login-input">
+                        <span class="login-icon">⌘</span>
+                        <input
+                            id="gestora_password"
+                            type="password"
+                            name="password"
+                            placeholder="Introduce la contraseña"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="password-toggle" data-password-target="gestora_password">
+                            Mostrar
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-submit">
+                    Entrar como gestora
+                </button>
             </form>
 
         </div>
-    </div>
+    </section>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const passwordInput = document.getElementById('password');
-        const togglePassword = document.getElementById('togglePassword');
-        const loginForm = document.getElementById('loginForm');
-        const loginButton = document.getElementById('loginButton');
-        const loginButtonText = document.getElementById('loginButtonText');
+        const tabs = document.querySelectorAll('[data-login-target]');
+        const forms = {
+            usuario: document.getElementById('login-usuario'),
+            gestora: document.getElementById('login-gestora')
+        };
 
-        if (passwordInput && togglePassword) {
-            togglePassword.addEventListener('click', function () {
-                const isPassword = passwordInput.getAttribute('type') === 'password';
+        tabs.forEach(function (tab) {
+            tab.addEventListener('click', function () {
+                const target = tab.dataset.loginTarget;
 
-                passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
-                togglePassword.textContent = isPassword ? 'Ocultar' : 'Mostrar';
+                tabs.forEach(function (item) {
+                    item.classList.remove('active');
+                });
+
+                tab.classList.add('active');
+
+                Object.keys(forms).forEach(function (key) {
+                    forms[key].classList.toggle('active', key === target);
+                });
             });
-        }
+        });
 
-        if (loginForm && loginButton && loginButtonText) {
-            loginForm.addEventListener('submit', function () {
-                loginButton.classList.add('is-loading');
-                loginButton.disabled = true;
-                loginButtonText.textContent = 'Verificando acceso...';
+        document.querySelectorAll('[data-password-target]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const input = document.getElementById(button.dataset.passwordTarget);
+
+                if (!input) {
+                    return;
+                }
+
+                const mostrar = input.type === 'password';
+                input.type = mostrar ? 'text' : 'password';
+                button.textContent = mostrar ? 'Ocultar' : 'Mostrar';
             });
-        }
+        });
     });
 </script>
 
-@endsection
