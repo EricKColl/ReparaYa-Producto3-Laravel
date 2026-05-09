@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,7 @@
     <style>
         :root {
             --bg-page: #eef3f9;
-            --bg-panel: rgba(255,255,255,0.98);
+            --bg-panel: rgba(255, 255, 255, 0.98);
             --text-main: #0f172a;
             --text-soft: #64748b;
 
@@ -37,7 +38,7 @@
             margin: 0;
             color: var(--text-main);
             background:
-                radial-gradient(circle at top left, rgba(15,111,255,0.10), transparent 18%),
+                radial-gradient(circle at top left, rgba(15, 111, 255, 0.10), transparent 18%),
                 linear-gradient(180deg, #f7faff 0%, #eef3f9 100%);
         }
 
@@ -50,7 +51,7 @@
             top: 0;
             z-index: 50;
             background: linear-gradient(90deg, #020817 0%, #04142d 45%, #07192f 100%);
-            border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 10px 24px rgba(2, 6, 23, 0.14);
         }
 
@@ -64,23 +65,23 @@
         }
 
         .brand {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-width: 260px;
-}
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-width: 260px;
+        }
 
-.brand-link {
-    text-decoration: none;
-    border-radius: 22px;
-    transition: transform 0.14s ease, opacity 0.14s ease, filter 0.14s ease;
-}
+        .brand-link {
+            text-decoration: none;
+            border-radius: 22px;
+            transition: transform 0.14s ease, opacity 0.14s ease, filter 0.14s ease;
+        }
 
-.brand-link:hover {
-    transform: translateY(-1px);
-    opacity: 0.96;
-    filter: drop-shadow(0 10px 18px rgba(15, 111, 255, 0.16));
-}
+        .brand-link:hover {
+            transform: translateY(-1px);
+            opacity: 0.96;
+            filter: drop-shadow(0 10px 18px rgba(15, 111, 255, 0.16));
+        }
 
         .brand-mark {
             width: 54px;
@@ -114,7 +115,7 @@
         }
 
         nav a {
-            color: rgba(255,255,255,0.92);
+            color: rgba(255, 255, 255, 0.92);
             font-weight: 700;
             padding: 13px 18px;
             border-radius: 999px;
@@ -123,9 +124,9 @@
 
         nav a:hover,
         nav a.nav-pill {
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
             color: white;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
         }
 
         .nav-login {
@@ -137,7 +138,7 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            color: rgba(255,255,255,0.92);
+            color: rgba(255, 255, 255, 0.92);
             font-size: 14px;
             font-weight: 700;
             flex-wrap: wrap;
@@ -149,9 +150,9 @@
             justify-content: center;
             padding: 8px 12px;
             border-radius: 999px;
-            background: rgba(255,255,255,0.08);
+            background: rgba(255, 255, 255, 0.08);
             color: #d7e7f8;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
             font-size: 13px;
             font-weight: 900;
         }
@@ -162,10 +163,10 @@
             justify-content: center;
             padding: 10px 16px;
             border-radius: 999px;
-            background: rgba(220,53,69,0.20);
+            background: rgba(220, 53, 69, 0.20);
             color: white;
             font-weight: 700;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
         }
 
         main {
@@ -175,7 +176,7 @@
             border-radius: var(--radius-xl);
             padding: 28px;
             box-shadow: var(--shadow-panel);
-            border: 1px solid rgba(255,255,255,0.70);
+            border: 1px solid rgba(255, 255, 255, 0.70);
         }
 
         footer {
@@ -390,34 +391,35 @@
         }
     </style>
 </head>
+
 <body>
 
-@php
+    @php
     $usuarioAutenticado = session()->has('usuario_id');
     $rolSesion = session('usuario_rol');
 
     $rolTexto = 'Invitado';
 
     if ($rolSesion === 'admin') {
-        $rolTexto = 'Administrador';
+    $rolTexto = 'Administrador';
     } elseif ($rolSesion === 'tecnico') {
-        $rolTexto = 'Técnico';
+    $rolTexto = 'Técnico';
     } elseif ($rolSesion === 'particular') {
-        $rolTexto = 'Cliente';
+    $rolTexto = 'Cliente';
     }
-@endphp
+    @endphp
 
-<header>
-    <div class="topbar">
-        <a href="{{ route('home') }}" class="brand brand-link" aria-label="Ir al inicio de ReparaYa">
-    <div class="brand-mark">RY</div>
-    <div class="brand-title">ReparaYa</div>
-</a>
+    <header>
+        <div class="topbar">
+            <a href="{{ route('home') }}" class="brand brand-link" aria-label="Ir al inicio de ReparaYa">
+                <div class="brand-mark">RY</div>
+                <div class="brand-title">ReparaYa</div>
+            </a>
 
-        <nav>
-            
+            <nav>
 
-            @if($usuarioAutenticado && $rolSesion === 'admin')
+
+                @if($usuarioAutenticado && $rolSesion === 'admin')
                 <a href="/usuarios" class="{{ request()->routeIs('usuarios.*') ? 'nav-pill' : '' }}">
                     Usuarios
                 </a>
@@ -433,7 +435,18 @@
                 <a href="/incidencias" class="{{ request()->routeIs('incidencias.*') ? 'nav-pill' : '' }}">
                     Incidencias
                 </a>
-            @elseif($usuarioAutenticado && $rolSesion === 'particular')
+                <a href="/gestoras" class="{{ request()->routeIs('gestoras.*') ? 'nav-pill' : '' }}">
+                    Gestoras
+                </a>
+                <a href="/comunidades" class="{{ request()->routeIs('comunidades.*') ? 'nav-pill' : '' }}">
+                    Comunidades
+                </a>
+
+                <a href="/liquidaciones" class="{{ request()->routeIs('liquidaciones.*') ? 'nav-pill' : '' }}">
+                    Liquidaciones
+                </a>
+
+                @elseif($usuarioAutenticado && $rolSesion === 'particular')
                 <a href="/incidencias" class="{{ request()->routeIs('incidencias.index') ? 'nav-pill' : '' }}">
                     Mis incidencias
                 </a>
@@ -441,46 +454,57 @@
                 <a href="/incidencias/create" class="{{ request()->routeIs('incidencias.create') ? 'nav-pill' : '' }}">
                     Nueva incidencia
                 </a>
-            @elseif($usuarioAutenticado && $rolSesion === 'tecnico')
+                @elseif($usuarioAutenticado && $rolSesion === 'tecnico')
                 <a href="/incidencias" class="{{ request()->routeIs('incidencias.*') ? 'nav-pill' : '' }}">
                     Mis servicios
                 </a>
-            @endif
+                @endif
 
-            @if($usuarioAutenticado)
+                @if(session('gestora_id'))
+                <a href="/b2b/panel" class="{{ request()->is('b2b/*') ? 'nav-pill' : '' }}">
+                    Panel Gestora
+                </a>
+                @else
+                <a href="/b2b/login" class="{{ request()->is('b2b/login') ? 'nav-pill' : '' }}">
+                    Acceso Gestoras
+                </a>
+                @endif
+
+                @if($usuarioAutenticado)
                 <span class="user-info">
                     {{ session('usuario_nombre') }}
                     <span class="role-chip">{{ $rolTexto }}</span>
                     <a href="/logout" class="logout-btn">Salir</a>
                 </span>
-            @else
+                @else
                 <a href="/login" class="nav-login {{ request()->routeIs('login') ? 'nav-pill' : '' }}">
                     Login
                 </a>
-            @endif
-        </nav>
-    </div>
-</header>
+                @endif
+            </nav>
+        </div>
+    </header>
 
-<main>
-    @if(session('success'))
+    <main>
+        @if(session('success'))
         <div class="flash-message flash-success">
             {{ session('success') }}
         </div>
-    @endif
+        @endif
 
-    @if(session('error'))
+        @if(session('error'))
         <div class="flash-message flash-error">
             {{ session('error') }}
         </div>
-    @endif
+        @endif
 
-    @yield('content')
-</main>
+        @yield('content')
+    </main>
 
-<footer>
-    ReparaYa
-</footer>
+    <footer>
+        ReparaYa
+    </footer>
 
 </body>
+
 </html>

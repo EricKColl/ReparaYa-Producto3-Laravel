@@ -19,7 +19,10 @@ class Incidencia extends Model
         'fecha_servicio',
         'tipo_urgencia',
         'estado',
-        'created_at'
+        'created_at',
+        'gestora_id',
+        'comunidad_id',
+        'precio_base',
     ];
 
     public $timestamps = false;
@@ -37,5 +40,15 @@ class Incidencia extends Model
     public function especialidad()
     {
         return $this->belongsTo(Especialidad::class, 'especialidad_id');
+    }
+
+    public function gestora()
+    {
+        return $this->belongsTo(Gestora::class, 'gestora_id');
+    }
+
+    public function comunidad()
+    {
+        return $this->belongsTo(Comunidad::class, 'comunidad_id');
     }
 }
