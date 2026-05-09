@@ -12,6 +12,7 @@ class Tecnico extends Model
 
     protected $fillable = [
         'usuario_id',
+        'nombre_completo',
         'especialidad_id',
         'disponible'
     ];
