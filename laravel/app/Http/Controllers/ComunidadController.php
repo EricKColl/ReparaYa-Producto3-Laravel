@@ -13,7 +13,7 @@ class ComunidadController extends Controller
     public function index()
     {
         if (session('usuario_rol') !== 'admin') {
-            return redirect('/')
+            return redirect()->route('home')
                 ->with('error', 'Solo el administrador puede gestionar comunidades.');
         }
 
@@ -27,7 +27,7 @@ class ComunidadController extends Controller
     public function create()
     {
         if (session('usuario_rol') !== 'admin') {
-            return redirect('/')
+            return redirect()->route('home')
                 ->with('error', 'Solo el administrador puede crear comunidades.');
         }
 
@@ -39,7 +39,7 @@ class ComunidadController extends Controller
     public function store(Request $request)
     {
         if (session('usuario_rol') !== 'admin') {
-            return redirect('/')
+            return redirect()->route('home')
                 ->with('error', 'Solo el administrador puede guardar comunidades.');
         }
 
@@ -67,7 +67,7 @@ class ComunidadController extends Controller
     public function edit($id)
     {
         if (session('usuario_rol') !== 'admin') {
-            return redirect('/')
+            return redirect()->route('home')
                 ->with('error', 'Solo el administrador puede editar comunidades.');
         }
 
@@ -81,7 +81,7 @@ class ComunidadController extends Controller
     public function update(Request $request, $id)
     {
         if (session('usuario_rol') !== 'admin') {
-            return redirect('/')
+            return redirect()->route('home')
                 ->with('error', 'Solo el administrador puede actualizar comunidades.');
         }
 
@@ -111,7 +111,7 @@ class ComunidadController extends Controller
     public function destroy($id)
     {
         if (session('usuario_rol') !== 'admin') {
-            return redirect('/')
+            return redirect()->route('home')
                 ->with('error', 'Solo el administrador puede eliminar comunidades.');
         }
 

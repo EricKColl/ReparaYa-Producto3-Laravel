@@ -804,7 +804,7 @@
             </div>
 
             <div class="hero-actions">
-                <a href="{{ $panel['url_principal'] ?? url('/') }}" class="btn btn-primary">
+                <a href="{{ $panel['url_principal'] ?? route('home') }}" class="btn btn-primary">
                     {{ $panel['accion_principal'] ?? 'Ir al inicio' }}
                 </a>
 

@@ -32,12 +32,12 @@ class AuthController extends Controller
             'usuario_rol' => $usuario->rol
         ]);
 
-        return redirect('/');
+        return redirect()->route('home');
     }
 
     public function logout()
     {
         session()->flush();
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }
