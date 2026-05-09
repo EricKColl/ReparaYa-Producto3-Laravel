@@ -328,7 +328,7 @@ $anyos = range(2024, max((int) now()->year, $anyo));
     public function liquidaciones(Request $request)
     {
         if (session('usuario_rol') !== 'admin') {
-            return redirect('/')
+            return redirect()->route('home')
                 ->with('error', 'Solo el administrador puede consultar liquidaciones.');
         }
 

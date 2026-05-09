@@ -104,7 +104,7 @@ class HomeController extends Controller
                 'accion_principal' => 'Acceder al sistema',
                 'url_principal' => url('/login'),
                 'secundaria' => 'Ver funcionamiento',
-                'url_secundaria' => url('/'),
+                'url_secundaria' => route('home'),
                 'metricas' => [],
                 'porcentajes' => [],
                 'proxima' => null
@@ -191,7 +191,7 @@ class HomeController extends Controller
                     'titulo' => 'Ficha técnica pendiente de vinculación',
                     'subtitulo' => 'Tu usuario existe, pero todavía no está asociado a una ficha técnica. Cuando el administrador complete la vinculación, verás aquí tus servicios asignados.',
                     'accion_principal' => 'Volver al inicio',
-                    'url_principal' => url('/'),
+                    'url_principal' => route('home'),
                     'secundaria' => 'Cerrar sesión',
                     'url_secundaria' => url('/logout'),
                     'metricas' => [
@@ -251,7 +251,7 @@ class HomeController extends Controller
             'titulo' => 'ReparaYa',
             'subtitulo' => 'Entorno de gestión de reparaciones.',
             'accion_principal' => 'Ir al inicio',
-            'url_principal' => url('/'),
+            'url_principal' => route('home'),
             'secundaria' => null,
             'url_secundaria' => null,
             'metricas' => [],
