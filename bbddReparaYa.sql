@@ -77,13 +77,14 @@ CREATE TABLE `comunidades` (
   `gestora_id` int NOT NULL,
   `nombre` varchar(255) NOT NULL,
   `direccion` varchar(255) NOT NULL,
+  `telefono_contacto` varchar(20) DEFAULT NULL,
   `zona` varchar(100) NOT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `comunidades_gestora_id_index` (`gestora_id`),
   CONSTRAINT `comunidades_gestora_id_foreign` FOREIGN KEY (`gestora_id`) REFERENCES `gestoras` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -92,6 +93,7 @@ CREATE TABLE `comunidades` (
 
 LOCK TABLES `comunidades` WRITE;
 /*!40000 ALTER TABLE `comunidades` DISABLE KEYS */;
+INSERT INTO `comunidades` VALUES (1,2,'Comunidad Calle del Paraiso','Calle 10 Goya, Madrid',NULL,'Norte','2026-05-09 16:44:09','2026-05-09 16:44:09');
 /*!40000 ALTER TABLE `comunidades` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -166,7 +168,7 @@ CREATE TABLE `gestoras` (
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `gestoras_email_unique` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -175,6 +177,7 @@ CREATE TABLE `gestoras` (
 
 LOCK TABLES `gestoras` WRITE;
 /*!40000 ALTER TABLE `gestoras` DISABLE KEYS */;
+INSERT INTO `gestoras` VALUES (2,'Gestoría Martínez','gmartinez@gmail.com','$2y$12$6vrlgFaf981J1FUHb1E3xO0NUlznIrVzda/VpS9S52tfkEtnD79Ba','625899987',5.00,'2026-05-09 16:39:20','2026-05-09 16:39:20');
 /*!40000 ALTER TABLE `gestoras` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -213,7 +216,7 @@ CREATE TABLE `incidencias` (
   CONSTRAINT `incidencias_ibfk_1` FOREIGN KEY (`cliente_id`) REFERENCES `usuarios` (`id`),
   CONSTRAINT `incidencias_ibfk_2` FOREIGN KEY (`tecnico_id`) REFERENCES `tecnicos` (`id`),
   CONSTRAINT `incidencias_ibfk_3` FOREIGN KEY (`especialidad_id`) REFERENCES `especialidades` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -222,7 +225,7 @@ CREATE TABLE `incidencias` (
 
 LOCK TABLES `incidencias` WRITE;
 /*!40000 ALTER TABLE `incidencias` DISABLE KEYS */;
-INSERT INTO `incidencias` VALUES (2,'INC-892605',3,5,3,'Armario roto','Calle del loro 58 1er 2nda','635055555','2026-05-10 10:00:00','Estandar','Asignada',NULL,NULL,0.00,'2026-05-07 11:57:04'),(4,'INC-476765',10,5,3,'Armario roto','Calle del loro','632055587','2026-05-15 13:00:00','Estandar','Asignada',NULL,NULL,0.00,'2026-05-08 10:07:42'),(5,'INC-841544',10,4,2,'Leds fundidos','Pont Major 3 1er 1era','632055587','2026-05-10 12:45:00','Urgente','Asignada',NULL,NULL,0.00,'2026-05-08 10:38:11');
+INSERT INTO `incidencias` VALUES (2,'INC-892605',3,5,3,'Armario roto','Calle del loro 58 1er 2nda','635055555','2026-05-10 10:00:00','Estandar','Asignada',NULL,NULL,0.00,'2026-05-07 11:57:04'),(4,'INC-476765',10,5,3,'Armario roto','Calle del loro','632055587','2026-05-15 13:00:00','Estandar','Asignada',NULL,NULL,0.00,'2026-05-08 10:07:42'),(5,'INC-841544',10,4,2,'Leds fundidos','Pont Major 3 1er 1era','632055587','2026-05-10 12:45:00','Urgente','Asignada',NULL,NULL,0.00,'2026-05-08 10:38:11'),(8,'B2B-149573',11,NULL,3,'Armarios rotos','Calle 10 Goya, Madrid','659033326','2026-05-08 19:00:00','Estandar','Finalizada',2,1,350.00,'2026-05-09 17:22:36'),(9,'B2B-610739',11,NULL,3,'Mobiliario destrozado por culpa de Jenny','Calle 10 Goya, Madrid','624033302','2026-05-11 19:15:00','Estandar','Finalizada',2,1,200.00,'2026-05-09 17:35:32');
 /*!40000 ALTER TABLE `incidencias` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -442,7 +445,7 @@ CREATE TABLE `usuarios` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -451,7 +454,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (3,'Erick Coll','erick@gmail.com','$2y$12$iKrb6DkG/snRCzJvAVM1oecGSYSNOsS/8NGzjBCqb2QxfjfPeQxpu','particular','635055555','2026-03-31 17:17:30'),(4,'Admin','admin@gmail.com','$2y$12$HUN23.pQcyNpgnSFQ4hcqO9DSJ2PKhc24ztRucbnur0YebeNOBfkS','admin','658455502','2026-04-01 17:22:12'),(5,'Jordi','jordi@gmail.com','$2y$12$VMP6ZWmyIIMxrMNiFvjXH.SAFGcFvy9sUKfzZu5WxR7FPMaFiMXAu','particular','625833305','2026-04-01 17:48:25'),(8,'Pau Parals Martínez','pau@gmail.com','$2y$12$zztXeSIuNUcao2umuzxUdO4jqZd6DUUS9hVhjuAP8JI6do0uY.3dG','tecnico','658400025','2026-05-07 10:41:07'),(9,'Manuel Perez Collado','manuel@gmail.com','$2y$12$EYGaSL1IZMCfMxiFRtjUIuBfWDRuPl6aKrfFDHAdYZrWKdnANM3aq','tecnico','658744418','2026-05-07 11:00:14'),(10,'Joan Vilanou Lopez','joan@gmail.com','$2y$12$R8DExLL8AAP7d/42hY8BBOyoNp.hm7CHkg8B0HRHDP68AtiKq.xyu','particular','632055587','2026-05-08 09:25:41');
+INSERT INTO `usuarios` VALUES (3,'Erick Coll','erick@gmail.com','$2y$12$iKrb6DkG/snRCzJvAVM1oecGSYSNOsS/8NGzjBCqb2QxfjfPeQxpu','particular','635055555','2026-03-31 17:17:30'),(4,'Admin','admin@gmail.com','$2y$12$HUN23.pQcyNpgnSFQ4hcqO9DSJ2PKhc24ztRucbnur0YebeNOBfkS','admin','658455502','2026-04-01 17:22:12'),(5,'Jordi','jordi@gmail.com','$2y$12$VMP6ZWmyIIMxrMNiFvjXH.SAFGcFvy9sUKfzZu5WxR7FPMaFiMXAu','particular','625833305','2026-04-01 17:48:25'),(8,'Pau Parals Martínez','pau@gmail.com','$2y$12$zztXeSIuNUcao2umuzxUdO4jqZd6DUUS9hVhjuAP8JI6do0uY.3dG','tecnico','658400025','2026-05-07 10:41:07'),(9,'Manuel Perez Collado','manuel@gmail.com','$2y$12$EYGaSL1IZMCfMxiFRtjUIuBfWDRuPl6aKrfFDHAdYZrWKdnANM3aq','tecnico','658744418','2026-05-07 11:00:14'),(10,'Joan Vilanou Lopez','joan@gmail.com','$2y$12$R8DExLL8AAP7d/42hY8BBOyoNp.hm7CHkg8B0HRHDP68AtiKq.xyu','particular','632055587','2026-05-08 09:25:41'),(11,'Cliente B2B - Gestoría Martínez','b2b.gestora.2@reparaya.local','$2y$12$jJQSaEUL.oZhReSAGEWnVOW6WJpM68nTcedLaOPcSmc/xGRpsdqDS','particular','625899987','2026-05-09 17:07:50');
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -468,4 +471,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-05-09 16:21:21
+-- Dump completed on 2026-05-09 17:53:25

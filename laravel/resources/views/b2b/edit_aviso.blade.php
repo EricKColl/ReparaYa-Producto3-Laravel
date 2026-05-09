@@ -1,12 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Crear Aviso · ReparaYa')
+@section('title', 'Editar Aviso · ReparaYa')
 
 @section('content')
-
-@php
-    $comunidadSeleccionada = old('comunidad_id');
-@endphp
 
 <style>
     .b2b-form-shell {
@@ -67,6 +63,21 @@
         color: #d7e5f3;
         font-size: 18px;
         line-height: 1.7;
+    }
+
+    .b2b-reference {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        padding: 9px 14px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.10);
+        color: #9adfff;
+        border: 1px solid rgba(255,255,255,0.14);
+        font-size: 13px;
+        font-weight: 900;
+        letter-spacing: 0.55px;
+        text-transform: uppercase;
     }
 
     .b2b-form-card {
@@ -257,16 +268,6 @@
         padding-left: 20px;
     }
 
-    .b2b-empty-warning {
-        padding: 18px;
-        border-radius: 20px;
-        background: #fff7dd;
-        color: #715400;
-        border: 1px solid #f3e1a4;
-        font-weight: 900;
-        line-height: 1.55;
-    }
-
     @media (max-width: 1000px) {
         .b2b-form-hero-content {
             grid-template-columns: 1fr;
@@ -294,6 +295,10 @@
         .b2b-form-hero-content .btn {
             width: 100%;
         }
+
+        .b2b-reference {
+            margin: 0 auto;
+        }
     }
 </style>
 
@@ -302,9 +307,14 @@
     <section class="b2b-form-hero">
         <div class="b2b-form-hero-content">
             <div class="b2b-form-hero-title">
-                <h1>Crear aviso</h1>
+                <div class="b2b-reference">
+                    {{ $aviso->localizador }}
+                </div>
+
+                <h1>Editar aviso</h1>
+
                 <p>
-                    Alta de servicio para una comunidad gestionada por {{ $gestora->nombre }}.
+                    Actualización del servicio gestionado por {{ $gestora->nombre }}.
                 </p>
             </div>
 
@@ -316,18 +326,12 @@
 
     @if($errors->any())
         <div class="b2b-error">
-            <strong>No se ha podido crear el aviso.</strong>
+            <strong>No se ha podido actualizar el aviso.</strong>
             <ul>
                 @foreach($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-        </div>
-    @endif
-
-    @if($comunidades->isEmpty())
-        <div class="b2b-empty-warning">
-            Esta gestora todavía no tiene comunidades asignadas. Primero el administrador debe crear una comunidad vinculada a esta gestora.
         </div>
     @endif
 
@@ -338,8 +342,9 @@
                 <h2>Datos del aviso</h2>
             </div>
 
-            <form action="{{ route('b2b.store_aviso') }}" method="POST">
+            <form action="{{ route('b2b.update_aviso', $aviso->id) }}" method="POST">
                 @csrf
+                @method('PUT')
 
                 <div class="b2b-form-grid">
 
@@ -355,14 +360,14 @@
                                     data-direccion="{{ $comunidad->direccion }}"
                                     data-telefono="{{ $comunidad->telefono_contacto }}"
                                     data-zona="{{ $comunidad->zona }}"
-                                    {{ old('comunidad_id') == $comunidad->id ? 'selected' : '' }}
+                                    {{ old('comunidad_id', $aviso->comunidad_id) == $comunidad->id ? 'selected' : '' }}
                                 >
                                     {{ $comunidad->nombre }} · {{ $comunidad->direccion }}
                                 </option>
                             @endforeach
                         </select>
 
-                        <div class="b2b-auto-box" id="comunidad_resumen">
+                        <div class="b2b-auto-box">
                             <span>Comunidad seleccionada</span>
                             <strong id="comunidad_resumen_texto">
                                 Selecciona una comunidad para cargar sus datos operativos.
@@ -379,7 +384,7 @@
                             @foreach($especialidades as $especialidad)
                                 <option
                                     value="{{ $especialidad->id }}"
-                                    {{ old('especialidad_id') == $especialidad->id ? 'selected' : '' }}
+                                    {{ old('especialidad_id', $aviso->especialidad_id) == $especialidad->id ? 'selected' : '' }}
                                 >
                                     {{ $especialidad->nombre_especialidad }}
                                 </option>
@@ -395,13 +400,12 @@
                             name="telefono_contacto"
                             id="telefono_contacto"
                             class="b2b-input"
-                            value="{{ old('telefono_contacto') }}"
-                            placeholder="Se cargará desde la comunidad"
+                            value="{{ old('telefono_contacto', $aviso->telefono_contacto) }}"
                             required
                         >
 
                         <small>
-                            Se rellena automáticamente al seleccionar la comunidad, pero puede ajustarse si el aviso requiere otro contacto.
+                            Si cambias la comunidad, se puede cargar automáticamente el teléfono registrado de esa comunidad.
                         </small>
                     </div>
 
@@ -413,7 +417,7 @@
                             name="fecha_servicio"
                             id="fecha_servicio"
                             class="b2b-input"
-                            value="{{ old('fecha_servicio', now()->format('Y-m-d\TH:i')) }}"
+                            value="{{ old('fecha_servicio', \Carbon\Carbon::parse($aviso->fecha_servicio)->format('Y-m-d\TH:i')) }}"
                             required
                         >
                     </div>
@@ -422,11 +426,11 @@
                         <label for="tipo_urgencia">Urgencia</label>
 
                         <select name="tipo_urgencia" id="tipo_urgencia" class="b2b-select" required>
-                            <option value="Estandar" {{ old('tipo_urgencia') == 'Estandar' ? 'selected' : '' }}>
+                            <option value="Estandar" {{ old('tipo_urgencia', $aviso->tipo_urgencia) == 'Estandar' ? 'selected' : '' }}>
                                 Estándar
                             </option>
 
-                            <option value="Urgente" {{ old('tipo_urgencia') == 'Urgente' ? 'selected' : '' }}>
+                            <option value="Urgente" {{ old('tipo_urgencia', $aviso->tipo_urgencia) == 'Urgente' ? 'selected' : '' }}>
                                 Urgente
                             </option>
                         </select>
@@ -442,7 +446,7 @@
                             class="b2b-input"
                             step="0.01"
                             min="0"
-                            value="{{ old('precio_base', 0) }}"
+                            value="{{ old('precio_base', $aviso->precio_base) }}"
                             required
                         >
                     </div>
@@ -451,17 +455,21 @@
                         <label for="estado">Estado del aviso</label>
 
                         <select name="estado" id="estado" class="b2b-select" required>
-                            <option value="Pendiente" {{ old('estado') == 'Pendiente' ? 'selected' : '' }}>
+                            <option value="Pendiente" {{ old('estado', $aviso->estado) == 'Pendiente' ? 'selected' : '' }}>
                                 Pendiente
                             </option>
 
-                            <option value="Finalizada" {{ old('estado') == 'Finalizada' ? 'selected' : '' }}>
+                            <option value="Finalizada" {{ old('estado', $aviso->estado) == 'Finalizada' ? 'selected' : '' }}>
                                 Finalizada
+                            </option>
+
+                            <option value="Cancelada" {{ old('estado', $aviso->estado) == 'Cancelada' ? 'selected' : '' }}>
+                                Cancelada
                             </option>
                         </select>
 
                         <small>
-                            Puedes marcarlo como finalizado para generar comisión y liquidación del mes.
+                            Las comisiones solo se calculan sobre avisos finalizados.
                         </small>
                     </div>
 
@@ -473,8 +481,7 @@
                             id="descripcion"
                             class="b2b-textarea"
                             required
-                            placeholder="Describe el problema detectado en la comunidad..."
-                        >{{ old('descripcion') }}</textarea>
+                        >{{ old('descripcion', $aviso->descripcion) }}</textarea>
                     </div>
 
                 </div>
@@ -491,8 +498,8 @@
                     </div>
 
                     <div class="b2b-status-card">
-                        <span>Liquidación</span>
-                        <strong>Servicios finalizados</strong>
+                        <span>Localizador</span>
+                        <strong>{{ $aviso->localizador }}</strong>
                     </div>
                 </div>
 
@@ -501,8 +508,8 @@
                         Cancelar
                     </a>
 
-                    <button type="submit" class="btn btn-primary" {{ $comunidades->isEmpty() ? 'disabled' : '' }}>
-                        Guardar aviso
+                    <button type="submit" class="btn btn-primary">
+                        Actualizar aviso
                     </button>
                 </div>
 
@@ -541,7 +548,7 @@
 
         resumenTexto.textContent = direccion + ' · Zona: ' + zona + ' · Teléfono: ' + (telefono || 'Sin teléfono registrado');
 
-        if (forzarTelefono || telefonoInput.value.trim() === '') {
+        if (forzarTelefono) {
             telefonoInput.value = telefono;
         }
     }

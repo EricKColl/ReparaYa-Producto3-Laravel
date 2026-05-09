@@ -995,9 +995,8 @@
                     </div>
                 </div>
 
-                <div>
-                    <<div>
-    <div class="next-card">
+                                <div>
+                    <div class="next-card">
                         @if($proxima)
                             @php
                                 $fechaProxima = \Carbon\Carbon::parse($proxima->fecha_servicio);
@@ -1153,6 +1152,14 @@
                 </div>
             </div>
         </section>
+       @endif
+
+    @if($tipoInicio !== 'visitante' && !empty($calendarData['calendarTitle']))
+        @include('components.reparaya-calendar', [
+            'calendarTitle' => $calendarData['calendarTitle'],
+            'calendarSubtitle' => $calendarData['calendarSubtitle'] ?? null,
+            'calendarEvents' => $calendarData['calendarEvents'] ?? [],
+        ])
     @endif
 
 </div>

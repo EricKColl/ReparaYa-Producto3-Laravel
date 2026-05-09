@@ -58,20 +58,22 @@
         .topbar {
             width: min(1800px, calc(100% - 28px));
             margin: 0 auto;
-            min-height: 88px;
-            display: flex;
+            min-height: 92px;
+            display: grid;
+            grid-template-columns: minmax(240px, 1fr) auto minmax(240px, 1fr);
             align-items: center;
-            gap: 34px;
+            gap: 18px;
         }
 
         .brand {
             display: flex;
             align-items: center;
             gap: 14px;
-            min-width: 260px;
+            min-width: 0;
         }
 
         .brand-link {
+            width: fit-content;
             text-decoration: none;
             border-radius: 22px;
             transition: transform 0.14s ease, opacity 0.14s ease, filter 0.14s ease;
@@ -104,57 +106,54 @@
             font-weight: 900;
             letter-spacing: -1.2px;
             line-height: 1;
+            white-space: nowrap;
         }
 
-        nav {
+        .topbar-nav {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 10px;
-            flex: 1;
+            min-width: 0;
+            width: fit-content;
+            max-width: 100%;
+            justify-self: center;
             flex-wrap: wrap;
         }
 
-        nav a {
+        .topbar-nav a,
+        .session-actions a {
             color: rgba(255, 255, 255, 0.92);
-            font-weight: 700;
+            font-weight: 800;
             padding: 13px 18px;
             border-radius: 999px;
-            transition: background 0.14s ease, color 0.14s ease;
+            transition: background 0.14s ease, color 0.14s ease, transform 0.14s ease;
+            white-space: nowrap;
         }
 
-        nav a:hover,
-        nav a.nav-pill {
+        .topbar-nav a:hover,
+        .topbar-nav a.nav-pill,
+        .session-actions a:hover,
+        .session-actions a.nav-pill {
             background: rgba(255, 255, 255, 0.08);
             color: white;
             box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
         }
 
-        .nav-login {
-            margin-left: auto;
-        }
-
-        .user-info {
-            margin-left: auto;
+        .session-actions {
             display: flex;
             align-items: center;
+            justify-content: flex-end;
             gap: 12px;
-            color: rgba(255, 255, 255, 0.92);
-            font-size: 14px;
-            font-weight: 700;
-            flex-wrap: wrap;
+            min-width: 0;
+            justify-self: end;
         }
 
-        .role-chip {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 12px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.08);
-            color: #d7e7f8;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
-            font-size: 13px;
+        .session-name {
+            color: rgba(255, 255, 255, 0.92);
+            font-size: 14px;
             font-weight: 900;
+            white-space: nowrap;
         }
 
         .logout-btn {
@@ -165,7 +164,7 @@
             border-radius: 999px;
             background: rgba(220, 53, 69, 0.20);
             color: white;
-            font-weight: 700;
+            font-weight: 800;
             box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
         }
 
@@ -346,38 +345,80 @@
             color: #9b6b05;
         }
 
-        @media (max-width: 1100px) {
+        @media (max-width: 1480px) {
             .topbar {
+                grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
+                gap: 14px;
+            }
+
+            .topbar-nav {
+                gap: 8px;
+            }
+
+            .topbar-nav a,
+            .session-actions a {
+                padding: 12px 14px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 1180px) {
+            .topbar {
+                grid-template-columns: 1fr auto;
                 padding: 14px 0;
-                align-items: flex-start;
-                flex-direction: column;
+                align-items: center;
             }
 
-            .brand {
-                min-width: 0;
-            }
-
-            nav {
+            .topbar-nav {
+                grid-column: 1 / -1;
+                grid-row: 2;
+                justify-content: center;
                 width: 100%;
-                margin-left: 0;
+                padding-top: 4px;
             }
 
-            .nav-login,
-            .user-info {
-                margin-left: 0;
+            .session-actions {
+                grid-column: 2;
+                grid-row: 1;
             }
         }
 
         @media (max-width: 760px) {
+            .topbar {
+                width: min(100% - 16px, 1800px);
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .brand-title {
+                font-size: 24px;
+            }
+
+            .session-actions {
+                grid-column: 1;
+                grid-row: auto;
+                justify-content: flex-start;
+                flex-wrap: wrap;
+            }
+
+            .topbar-nav {
+                grid-column: 1;
+                justify-content: flex-start;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding-bottom: 4px;
+                scrollbar-width: none;
+            }
+
+            .topbar-nav::-webkit-scrollbar {
+                display: none;
+            }
+
             main {
                 width: min(100% - 16px, 1800px);
                 margin-top: 16px;
                 padding: 16px;
                 border-radius: 24px;
-            }
-
-            .brand-title {
-                font-size: 24px;
             }
 
             .page-header h1 {
@@ -394,116 +435,135 @@
 
 <body>
 
-    @php
+@php
     $usuarioAutenticado = session()->has('usuario_id');
+    $gestoraAutenticada = session()->has('gestora_id');
+
     $rolSesion = session('usuario_rol');
+    $nombreUsuario = session('usuario_nombre');
+    $nombreGestora = session('gestora_nombre') ?? session('gestora_email') ?? 'Gestora';
+@endphp
 
-    $rolTexto = 'Invitado';
+<header>
+    <div class="topbar">
 
-    if ($rolSesion === 'admin') {
-    $rolTexto = 'Administrador';
-    } elseif ($rolSesion === 'tecnico') {
-    $rolTexto = 'Técnico';
-    } elseif ($rolSesion === 'particular') {
-    $rolTexto = 'Cliente';
-    }
-    @endphp
+        <a href="{{ route('home') }}" class="brand brand-link" aria-label="Ir al inicio de ReparaYa">
+            <div class="brand-mark">RY</div>
+            <div class="brand-title">ReparaYa</div>
+        </a>
 
-    <header>
-        <div class="topbar">
-            <a href="{{ route('home') }}" class="brand brand-link" aria-label="Ir al inicio de ReparaYa">
-                <div class="brand-mark">RY</div>
-                <div class="brand-title">ReparaYa</div>
-            </a>
+        <nav class="topbar-nav" aria-label="Navegación principal">
 
-            <nav>
+            @if($usuarioAutenticado && $rolSesion === 'admin')
 
-
-                @if($usuarioAutenticado && $rolSesion === 'admin')
-                <a href="/usuarios" class="{{ request()->routeIs('usuarios.*') ? 'nav-pill' : '' }}">
+                <a href="{{ url('/usuarios') }}" class="{{ request()->routeIs('usuarios.*') ? 'nav-pill' : '' }}">
                     Usuarios
                 </a>
 
-                <a href="/tecnicos" class="{{ request()->routeIs('tecnicos.*') ? 'nav-pill' : '' }}">
+                <a href="{{ url('/tecnicos') }}" class="{{ request()->routeIs('tecnicos.*') ? 'nav-pill' : '' }}">
                     Técnicos
                 </a>
 
-                <a href="/especialidades" class="{{ request()->routeIs('especialidades.*') ? 'nav-pill' : '' }}">
+                <a href="{{ url('/especialidades') }}" class="{{ request()->routeIs('especialidades.*') ? 'nav-pill' : '' }}">
                     Especialidades
                 </a>
 
-                <a href="/incidencias" class="{{ request()->routeIs('incidencias.*') ? 'nav-pill' : '' }}">
+                <a href="{{ url('/incidencias') }}" class="{{ request()->routeIs('incidencias.*') ? 'nav-pill' : '' }}">
                     Incidencias
                 </a>
-                <a href="/gestoras" class="{{ request()->routeIs('gestoras.*') ? 'nav-pill' : '' }}">
+
+                <a href="{{ url('/gestoras') }}" class="{{ request()->routeIs('gestoras.*') ? 'nav-pill' : '' }}">
                     Gestoras
                 </a>
-                <a href="/comunidades" class="{{ request()->routeIs('comunidades.*') ? 'nav-pill' : '' }}">
+
+                <a href="{{ url('/comunidades') }}" class="{{ request()->routeIs('comunidades.*') ? 'nav-pill' : '' }}">
                     Comunidades
                 </a>
 
-                <a href="/liquidaciones" class="{{ request()->routeIs('liquidaciones.*') ? 'nav-pill' : '' }}">
+                <a href="{{ url('/liquidaciones') }}" class="{{ request()->routeIs('liquidaciones.*') ? 'nav-pill' : '' }}">
                     Liquidaciones
                 </a>
 
-                @elseif($usuarioAutenticado && $rolSesion === 'particular')
-                <a href="/incidencias" class="{{ request()->routeIs('incidencias.index') ? 'nav-pill' : '' }}">
+            @elseif($usuarioAutenticado && $rolSesion === 'particular')
+
+                <a href="{{ url('/incidencias') }}" class="{{ request()->routeIs('incidencias.index') ? 'nav-pill' : '' }}">
                     Mis incidencias
                 </a>
 
-                <a href="/incidencias/create" class="{{ request()->routeIs('incidencias.create') ? 'nav-pill' : '' }}">
+                <a href="{{ url('/incidencias/create') }}" class="{{ request()->routeIs('incidencias.create') ? 'nav-pill' : '' }}">
                     Nueva incidencia
                 </a>
-                @elseif($usuarioAutenticado && $rolSesion === 'tecnico')
-                <a href="/incidencias" class="{{ request()->routeIs('incidencias.*') ? 'nav-pill' : '' }}">
+
+            @elseif($usuarioAutenticado && $rolSesion === 'tecnico')
+
+                <a href="{{ url('/incidencias') }}" class="{{ request()->routeIs('incidencias.*') ? 'nav-pill' : '' }}">
                     Mis servicios
                 </a>
-                @endif
 
-                @if(session('gestora_id'))
-                <a href="/b2b/panel" class="{{ request()->is('b2b/*') ? 'nav-pill' : '' }}">
-                    Panel Gestora
-                </a>
-                @else
-                <a href="/b2b/login" class="{{ request()->is('b2b/login') ? 'nav-pill' : '' }}">
-                    Acceso Gestoras
-                </a>
-                @endif
+            @elseif($gestoraAutenticada)
 
-                @if($usuarioAutenticado)
-                <span class="user-info">
-                    {{ session('usuario_nombre') }}
-                    <span class="role-chip">{{ $rolTexto }}</span>
-                    <a href="/logout" class="logout-btn">Salir</a>
+                <a href="{{ url('/b2b/panel') }}" class="{{ request()->is('b2b/*') ? 'nav-pill' : '' }}">
+                    Panel gestora
+                </a>
+
+            @endif
+
+        </nav>
+
+        <div class="session-actions">
+
+            @if($usuarioAutenticado)
+
+                <span class="session-name">
+                    {{ $nombreUsuario }}
                 </span>
-                @else
-                <a href="/login" class="nav-login {{ request()->routeIs('login') ? 'nav-pill' : '' }}">
+
+                <a href="{{ url('/logout') }}" class="logout-btn">
+                    Salir
+                </a>
+
+            @elseif($gestoraAutenticada)
+
+                <span class="session-name">
+                    {{ $nombreGestora }}
+                </span>
+
+                <a href="{{ url('/b2b/logout') }}" class="logout-btn">
+                    Salir
+                </a>
+
+            @else
+
+                <a href="{{ url('/login') }}" class="{{ request()->routeIs('login') ? 'nav-pill' : '' }}">
                     Login
                 </a>
-                @endif
-            </nav>
-        </div>
-    </header>
 
-    <main>
-        @if(session('success'))
+            @endif
+
+        </div>
+
+    </div>
+</header>
+
+<main>
+    @if(session('success'))
         <div class="flash-message flash-success">
             {{ session('success') }}
         </div>
-        @endif
+    @endif
 
-        @if(session('error'))
+    @if(session('error'))
         <div class="flash-message flash-error">
             {{ session('error') }}
         </div>
-        @endif
+    @endif
 
-        @yield('content')
-    </main>
+    @yield('content')
+</main>
 
-    <footer>
-        ReparaYa
-    </footer>
+<footer>
+    ReparaYa
+</footer>
 
 </body>
 
