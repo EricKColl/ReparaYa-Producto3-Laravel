@@ -15,13 +15,11 @@ class Comunidad extends Model
         'zona',
     ];
 
-    // Una comunidad pertenece a una gestora
     public function gestora()
     {
         return $this->belongsTo(Gestora::class, 'gestora_id');
     }
 
-    // Una comunidad tiene muchas incidencias
     public function incidencias()
     {
         return $this->hasMany(Incidencia::class, 'comunidad_id');

@@ -16,25 +16,19 @@ class Gestora extends Model
         'comision',
     ];
 
-    // No mostrar la contraseña al convertir a array/JSON
     protected $hidden = ['password'];
 
-    // Una gestora tiene muchas comunidades
     public function comunidades()
     {
         return $this->hasMany(Comunidad::class, 'gestora_id');
     }
 
-    // Una gestora tiene muchas incidencias (servicios tramitados por ella)
     public function incidencias()
     {
         return $this->hasMany(Incidencia::class, 'gestora_id');
     }
 
-    /**
-     * Calcula el total de comisiones de la gestora en un mes concreto.
-     * $mes y $anyo son opcionales; si no se pasan, usa el mes actual.
-     */
+
     public function totalComisionesMes(int $mes = null, int $anyo = null): float
     {
         $mes  = $mes  ?? now()->month;
@@ -46,7 +40,6 @@ class Gestora extends Model
             ->whereYear('fecha_servicio', $anyo)
             ->get()
             ->sum(function ($incidencia) {
-                // comisión = precio_base * porcentaje / 100
                 return $incidencia->precio_base * ($this->comision / 100);
             });
     }
